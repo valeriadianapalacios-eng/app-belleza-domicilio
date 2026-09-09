@@ -1,22 +1,23 @@
 /* Variables de Colores Pastel */
 :root {
     --pink-pastel-light: #fff0f3;
-    --pink-pastel-main: #ffccd5;
-    --pink-pastel-accent: #ffb3c1;
-    --rose-dark: #800f2f;
-    --rose-medium: #a4133c;
-    --text-dark: #2b2d42;
+    --pink-pastel-main: #f8edeb;
+    --pink-pastel-accent: #fcd5ce;
+    --rose-dark: #6b2d5c;
+    --rose-medium: #b56576;
+    --rose-button: #e8a598;
+    --text-dark: #4a4e69;
 }
 
 body {
-    background-color: #fff9fa;
-    color: var(--text-dark);
+    background-color: #fff9fa !important;
+    color: var(--text-dark) !important;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Navbar Personalizada */
 .navbar-pink {
-    background-color: var(--pink-pastel-main);
+    background-color: #fec5bb !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -26,61 +27,56 @@ body {
 
 .navbar-pink .nav-link {
     color: var(--rose-dark) !important;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .navbar-pink .nav-link:hover,
 .navbar-pink .nav-link.active {
-    color: var(--rose-medium) !important;
-    text-decoration: underline;
+    color: #8e3b46 !important;
 }
 
-/* Botones con estilo Rose */
+/* Botones */
 .btn-rose {
-    background-color: var(--rose-medium);
-    color: #ffffff;
-    border: none;
-    transition: all 0.3s ease;
+    background-color: var(--rose-medium) !important;
+    color: #ffffff !important;
+    border: none !important;
 }
 
 .btn-rose:hover {
-    background-color: var(--rose-dark);
-    color: #ffffff;
+    background-color: var(--rose-dark) !important;
 }
 
 .btn-rose-lg {
-    background-color: var(--rose-medium);
-    color: #ffffff;
+    background-color: #e8a598 !important;
+    color: #ffffff !important;
     padding: 12px 30px;
     font-size: 1.1rem;
     font-weight: 600;
-    border: none;
+    border: none !important;
     transition: all 0.3s ease;
 }
 
 .btn-rose-lg:hover {
-    background-color: var(--rose-dark);
-    color: #ffffff;
+    background-color: #d88373 !important;
     transform: translateY(-2px);
 }
 
-/* Hero / Banner Principal */
+/* Banner Principal */
 .hero-pastel {
-    background: linear-gradient(135deg, var(--pink-pastel-light) 0%, var(--pink-pastel-main) 100%);
-    border: 1px solid var(--pink-pastel-accent);
+    background: linear-gradient(135deg, #fae1dd 0%, #fec5bb 100%) !important;
+    border: 1px solid #fcd5ce !important;
 }
 
 .text-rose-dark {
-    color: var(--rose-dark);
+    color: var(--rose-dark) !important;
 }
 
-/* Modal y Tarjetas */
+/* Modal y Footer */
 .bg-rose-pastel {
-    background-color: var(--pink-pastel-main);
+    background-color: #fec5bb !important;
 }
 
-/* Footer */
 .footer-pastel {
-    background-color: var(--pink-pastel-light);
-    border-top: 1px solid var(--pink-pastel-main);
+    background-color: #fae1dd !important;
+    border-top: 1px solid #fcd5ce;
 }
