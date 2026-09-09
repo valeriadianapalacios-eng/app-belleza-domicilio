@@ -1,27 +1,23 @@
 // Arreglo de servicios reales de Lashes Rose's Studio
 const listaServicios = [
-    // Pestañas y Cejas
     { id: 1, categoria: "Pestañas", nombre: "Extensiones Clásicas", precio: 25.00, descripcion: "Aplicación pelo a pelo para una mirada natural y delicada." },
     { id: 2, categoria: "Pestañas", nombre: "Extensiones Volumen", precio: 40.00, descripcion: "Abundancia y mayor densidad para un efecto glamuroso e impactante." },
     { id: 3, categoria: "Cejas", nombre: "Laminado de Cejas", precio: 15.00, descripcion: "Diseño, peinado y fijación semipermanente para cejas perfiladas." },
     { id: 4, categoria: "Cejas", nombre: "Depilación de Cejas", precio: 5.00, descripcion: "Limpieza y perfilado de cejas según la forma de tu rostro." },
-    
-    // Uñas y Manos/Pies
     { id: 5, categoria: "Uñas", nombre: "Uñas Acrílicas Naturales", precio: 15.00, descripcion: "Estructura acrílica con acabado limpio, natural y elegante." },
     { id: 6, categoria: "Uñas", nombre: "Manicure", precio: 10.00, descripcion: "Cuidado completo de uñas y cutículas con hidratación." },
     { id: 7, categoria: "Uñas", nombre: "Pedicure", precio: 12.00, descripcion: "Tratamiento y estética para pies impecables y descansados." },
     { id: 8, categoria: "Uñas", nombre: "Esmaltado Permanente", precio: 10.00, descripcion: "Color duradero en uña natural con secado en lámpara UV/LED." }
 ];
 
-// Inicialización de la app
 document.addEventListener("DOMContentLoaded", () => {
     inicializarSesion();
     renderizarServicios();
     renderizarFormularioReserva();
+    renderizarMisCitas();
     configurarEventos();
 });
 
-// Manejo de la sesión guardada en localStorage
 function inicializarSesion() {
     const usuarioGuardado = JSON.parse(localStorage.getItem("usuario_activo"));
     const labelUsuario = document.getElementById("usuario-sesion");
@@ -39,9 +35,12 @@ function inicializarSesion() {
     }
 }
 
-// Renderizado del Catálogo de Servicios
+// Renderizado agrupado en únicamente 3 Cajas/Contenedores principales
 function renderizarServicios() {
     const contenedorApp = document.getElementById("app-content");
+
+    // Agrupar los servicios por categoría
+    const categorias = ["Pestañas", "Cejas", "Uñas"];
 
     let html = `
         <section id="servicios" class="my-5">
@@ -49,18 +48,34 @@ function renderizarServicios() {
             <div class="row g-4">
     `;
 
-    listaServicios.forEach((servicio) => {
+    categorias.forEach((cat) => {
+        const serviciosDeCategoria = listaServicios.filter(s => s.categoria === cat);
+
         html += `
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 border-start border-4 border-rose">
-                    <div class="card-body d-flex flex-column">
-                        <span class="badge bg-rose-pastel text-rose-dark mb-2 align-self-start fw-bold">${servicio.categoria}</span>
-                        <h5 class="card-title fw-bold">${servicio.nombre}</h5>
-                        <p class="card-text text-muted small flex-grow-1">${servicio.descripcion}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fs-4 fw-bold text-rose-dark">$${servicio.precio.toFixed(2)}</span>
-                            <a href="#reservas" onclick="seleccionarServicio('${servicio.nombre}')" class="btn btn-rose btn-sm rounded-pill px-3">Reservar</a>
-                        </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-rose overflow-hidden">
+                    <div class="card-header bg-rose-pastel text-center py-3">
+                        <h4 class="fw-bold text-rose-dark mb-0">${cat}</h4>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <ul class="list-group list-group-flush">
+        `;
+
+        serviciosDeCategoria.forEach((servicio, index) => {
+            html += `
+                <li class="list-group-item px-0 py-3 ${index !== serviciosDeCategoria.length - 1 ? 'border-bottom' : ''}">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold mb-0">${servicio.nombre}</h6>
+                        <span class="fs-5 fw-bold text-rose-dark">$${servicio.precio.toFixed(2)}</span>
+                    </div>
+                    <p class="text-muted small mb-2">${servicio.descripcion}</p>
+                    <a href="#reservas" onclick="seleccionarServicio('${servicio.nombre}')" class="btn btn-rose btn-sm rounded-pill px-3">Reservar</a>
+                </li>
+            `;
+        });
+
+        html += `
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -71,15 +86,14 @@ function renderizarServicios() {
             </div>
         </section>
         <div id="seccion-reserva-container"></div>
+        <div id="seccion-citas-container"></div>
     `;
 
     contenedorApp.innerHTML = html;
 }
 
-// Renderizado del Formulario de Reserva (Paso 5)
 function renderizarFormularioReserva() {
     const contenedorReserva = document.getElementById("seccion-reserva-container");
-
     let opcionesServicios = listaServicios.map(s => `<option value="${s.nombre}">${s.nombre} - $${s.precio.toFixed(2)}</option>`).join("");
 
     contenedorReserva.innerHTML = `
@@ -122,20 +136,76 @@ function renderizarFormularioReserva() {
     `;
 }
 
-// Seleccionar servicio automáticamente al dar clic en la tarjeta
-function seleccionarServicio(nombreServicio) {
-    const select = document.getElementById("reserva-servicio");
-    if (select) {
-        select.value = nombreServicio;
+function renderizarMisCitas() {
+    const contenedorCitas = document.getElementById("seccion-citas-container");
+    const citasGuardadas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+    let html = `
+        <section id="mis-citas" class="my-5 p-4 bg-white rounded-4 shadow-sm border">
+            <h3 class="fw-bold text-rose-dark mb-4 text-center">Mis Citas Agendadas</h3>
+    `;
+
+    if (citasGuardadas.length === 0) {
+        html += `<p class="text-center text-muted">No tienes citas registradas actualmente.</p>`;
+    } else {
+        html += `
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-rose-pastel">
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Fecha y Hora</th>
+                            <th>Dirección</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        citasGuardadas.forEach((cita) => {
+            html += `
+                <tr>
+                    <td class="fw-bold">${cita.nombre} <br><small class="text-muted">${cita.telefono}</small></td>
+                    <td>${cita.servicio}</td>
+                    <td>${cita.fecha} - ${cita.hora}</td>
+                    <td><small>${cita.direccion}</small></td>
+                    <td><span class="badge bg-warning text-dark">${cita.estado}</span></td>
+                    <td>
+                        <button onclick="eliminarCita(${cita.id})" class="btn btn-outline-danger btn-sm rounded-pill">Cancelar</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
     }
+
+    html += `</section>`;
+    contenedorCitas.innerHTML = html;
 }
 
-// Eventos del Login y Formulario de Reserva
+function seleccionarServicio(nombreServicio) {
+    const select = document.getElementById("reserva-servicio");
+    if (select) select.value = nombreServicio;
+}
+
+function eliminarCita(idCita) {
+    let citasGuardadas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+    citasGuardadas = citasGuardadas.filter(c => c.id !== idCita);
+    localStorage.setItem("citas_estudio", JSON.stringify(citasGuardadas));
+    renderizarMisCitas();
+}
+
 function configurarEventos() {
     const formLogin = document.getElementById("form-login");
     const btnLogout = document.getElementById("btn-logout");
 
-    // Login
     formLogin.addEventListener("submit", (e) => {
         e.preventDefault();
         const email = document.getElementById("login-email").value;
@@ -160,14 +230,12 @@ function configurarEventos() {
         inicializarSesion();
     });
 
-    // Logout
     btnLogout.addEventListener("click", (e) => {
         e.preventDefault();
         localStorage.removeItem("usuario_activo");
         inicializarSesion();
     });
 
-    // Procesar Reserva (Paso 5)
     document.addEventListener("submit", (e) => {
         if (e.target && e.target.id === "form-reserva") {
             e.preventDefault();
@@ -198,17 +266,16 @@ function configurarEventos() {
                 estado: "Pendiente"
             };
 
-            // Guardar en localStorage
             const citasGuardadas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
             citasGuardadas.push(nuevaCita);
             localStorage.setItem("citas_estudio", JSON.stringify(citasGuardadas));
 
-            // Feedback al usuario
             mensajeDiv.className = "alert alert-success mt-3";
             mensajeDiv.textContent = "¡Cita agendada con éxito! Nos pondremos en contacto para confirmar.";
             mensajeDiv.classList.remove("d-none");
 
             e.target.reset();
+            renderizarMisCitas();
         }
     });
 }
