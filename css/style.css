@@ -80,3 +80,50 @@ body {
     background-color: #fae1dd !important;
     border-top: 1px solid #fcd5ce;
 }
+
+/* Paleta de colores personalizada de Lashes Rose's Studio */
+:root {
+    --rose-main: #e8a0bf;
+    --rose-dark: #6d214f;
+    --rose-pastel: #fbd3e9;
+    --rose-hover: #d881a8;
+}
+
+/* Sobrescribir botones principales */
+.btn-rose {
+    background-color: var(--rose-main) !important;
+    border-color: var(--rose-main) !important;
+    color: #ffffff !important;
+}
+
+.btn-rose:hover {
+    background-color: var(--rose-hover) !important;
+    border-color: var(--rose-hover) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-rose {
+    color: var(--rose-dark) !important;
+    border-color: var(--rose-main) !important;
+}
+
+.btn-outline-rose:hover {
+    background-color: var(--rose-main) !important;
+    color: #ffffff !important;
+}
+
+/* Sobrescribir las pestañas del Modal (cambiar el azul de Bootstrap) */
+.nav-pills .nav-link.active {
+    background-color: var(--rose-main) !important;
+    color: #ffffff !important;
+}
+
+.nav-pills .nav-link {
+    color: var(--rose-dark) !important;
+}
+
+/* Estilos de enfoque para campos del formulario */
+.form-control:focus, .form-select:focus {
+    border-color: var(--rose-main) !important;
+    box-shadow: 0 0 0 0.25rem rgba(232, 160, 191, 0.3) !important;
+}

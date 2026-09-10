@@ -3,101 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lashes Rose's Studio - Servicios de Belleza a Domicilio</title>
+    <title>Lashes Rose's Studio</title>
     
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="bg-light">
 
-    <!-- Encabezado y Navegación Principal -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-pink sticky-top">
-            <div class="container">
-                <a class="navbar-brand fw-bold text-rose" href="#">🌸 Lashes Rose's Studio</a>
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item"><a class="nav-link active" href="#inicio">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#reservas">Reservar Cita</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#mis-citas" id="nav-citas">Mis Citas</a></li>
-                        <li class="nav-item dropdown ms-lg-3">
-                            <a class="btn btn-rose btn-sm dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
-                                👤 <span id="usuario-sesion">Invitado</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" id="btn-login-modal">Iniciar Sesión</a></li>
-                                <li><a class="dropdown-item d-none" href="#" id="btn-logout">Cerrar Sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
+    <!-- Navegación Superior -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-rose-dark" href="#">🌸 Lashes Rose's Studio</a>
+            <div class="d-flex align-items-center">
+                <span id="usuario-sesion" class="fw-semibold text-secondary me-3">Invitado</span>
+                <button id="btn-login-modal" class="btn btn-outline-rose rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">Ingresar</button>
+                <button id="btn-logout" class="btn btn-danger rounded-pill d-none">Cerrar Sesión</button>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
 
-    <!-- Contenido Principal -->
-    <main class="container my-4">
-
-        <!-- Banner de Bienvenida -->
-        <section id="inicio" class="p-5 mb-4 hero-pastel rounded-4 text-center shadow-sm">
-            <div class="container-fluid py-3">
-                <h1 class="display-5 fw-bold text-rose-dark">Servicios de Uñas y Pestañas a Domicilio</h1>
-                <p class="col-md-8 fs-5 mx-auto text-muted">Reserva tu cita en línea fácilmente y disfruta de una atención personalizada en la comodidad de tu hogar.</p>
-                <a class="btn btn-rose-lg rounded-pill shadow-sm" href="#reservas">Agendar Cita Ahora</a>
-            </div>
-        </section>
-
-        <!-- Contenedor Dinámico -->
-        <div id="app-content"></div>
-
+    <!-- Vista Principal -->
+    <main class="container py-4" id="app-content">
     </main>
 
-    <!-- Modal de Login -->
+    <!-- Pie de Página -->
+    <footer class="bg-white py-4 mt-5 border-top">
+        <div class="container text-center">
+            <p class="text-muted mb-0">© 2026 Lashes Rose's Studio - Proyecto DAW901 UDB. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Identificación Rápida por Teléfono -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-rose-pastel text-rose-dark">
-                    <h5 class="modal-title fw-bold" id="loginModalLabel">Iniciar Sesión</h5>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-0 bg-rose-pastel rounded-top-4">
+                    <h5 class="modal-title fw-bold text-rose-dark" id="loginModalLabel">Identificación de Cliente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="form-login">
-                        <div class="mb-3">
-                            <label for="login-email" class="form-label fw-semibold">Correo Electrónico</label>
-                            <input type="email" class="form-control rounded-3" id="login-email" required placeholder="correo@ejemplo.com">
-                        </div>
-                        <div class="mb-3">
-                            <label for="login-password" class="form-label fw-semibold">Contraseña</label>
-                            <input type="password" class="form-control rounded-3" id="login-password" required placeholder="******">
-                        </div>
-                        <div class="mb-3">
-                            <label for="login-rol" class="form-label fw-semibold">Rol de Usuario</label>
-                            <select class="form-select rounded-3" id="login-rol">
-                                <option value="cliente">Cliente</option>
-                                <option value="admin">Administradora (Emprendedora)</option>
-                            </select>
-                        </div>
-                        <div class="alert alert-danger d-none" id="login-error">Credenciales incorrectas.</div>
-                        <button type="submit" class="btn btn-rose w-100 rounded-3 py-2 fw-bold">Ingresar</button>
-                    </form>
+                    
+                    <!-- PASO 1: Ingresar Teléfono -->
+                    <div id="paso-busqueda">
+                        <p class="text-muted small mb-3">Ingresa tu número de teléfono celular para identificarte y agendar en segundos:</p>
+                        <form id="form-identificacion">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Número de Teléfono</label>
+                                <input type="tel" class="form-control" id="ident-telefono" required placeholder="Ej: 7000-0000">
+                            </div>
+                            <div id="ident-error" class="alert alert-danger d-none py-2 fs-6"></div>
+                            <button type="submit" class="btn btn-rose w-100 rounded-pill py-2">Continuar</button>
+                        </form>
+                    </div>
+
+                    <!-- PASO 2: Si es nueva, pedimos su nombre y autorización -->
+                    <div id="paso-nuevo-registro" class="d-none">
+                        <div class="alert alert-info py-2 small">¡Hola! No encontramos tu número registrado. Por favor indícanos tu nombre:</div>
+                        <form id="form-nuevo-cliente">
+                            <input type="hidden" id="reg-tel-oculto">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre Completo</label>
+                                <input type="text" class="form-control" id="nuevo-nombre" required placeholder="Ej: María López">
+                            </div>
+                            <div class="mb-3 form-check bg-light p-3 rounded-3 border">
+                                <input class="form-check-input mt-1" type="checkbox" id="check-guardar-datos" checked>
+                                <label class="form-check-label small text-muted" for="check-guardar-datos">
+                                    🔒 Autorizo guardar mis datos para agendar más rápido en mi próxima cita.
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-rose w-100 rounded-pill py-2">Continuar a la Cita</button>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Pie de Página -->
-    <footer class="footer-pastel text-center py-3 mt-5">
-        <div class="container">
-            <p class="mb-0 text-muted">&copy; 2026 Lashes Rose's Studio - Proyecto DAW901 UDB. Todos los derechos reservados.</p>
-        </div>
-    </footer>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
