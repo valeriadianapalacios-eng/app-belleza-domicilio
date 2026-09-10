@@ -45,23 +45,22 @@ function renderizarPaginaPrincipal() {
 
     let html = "";
 
-    // Si es Administradora, va directo al panel sin la introducción comercial ni servicios públicos
     if (esAdmin) {
         html += `
             <div class="p-4 mb-4 bg-white rounded-4 shadow-sm border d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="fw-bold text-rose-dark mb-1">Panel de Control - Lashes Rose's Studio</h2>
-                    <p class="text-muted mb-0 small">Bienvenida, Administradora. Aquí puedes gestionar la agenda de citas de tus clientas.</p>
+                    <p class="text-muted mb-0 small">Bienvenida, Administradora. Gestiona la agenda de citas y los datos de las clientas.</p>
                 </div>
                 <button onclick="cerrarSesionCliente()" class="btn btn-outline-danger btn-sm rounded-pill">Cerrar Sesión</button>
             </div>
         `;
         html += renderizarTablaCitas("Agenda General de Citas", true);
+        html += renderizarTablaClientesAdmin(); // Sección nueva para gestionar datos de clientas guardadas
         app.innerHTML = html;
         return;
     }
 
-    // Vista normal para Invitadas o Clientas
     html += `
         <section class="p-5 mb-4 bg-white rounded-4 shadow-sm border text-center">
             <h1 class="fw-bold text-rose-dark mb-3">🌸 Lashes Rose's Studio</h1>
@@ -201,6 +200,68 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     return html;
 }
 
+// NUEVA FUNCIÓN: Tabla de gestión de datos de clientas guardadas para la Admin
+function renderizarTablaClientesAdmin() {
+    let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
+
+    let html = `
+        <section class="my-5 p-4 bg-white rounded-4 shadow-sm border">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-rose-dark mb-0">Gestión de Datos de Clientas (Privacidad y Memoria)</h3>
+                <span class="badge bg-secondary p-2">Total Registros: ${clientes.length}</span>
+            </div>
+    `;
+
+    if (clientes.length === 0) {
+        html += `<p class="text-center text-muted">No hay clientas con datos guardados en el sistema.</p>`;
+    } else {
+        html += `
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-rose-pastel">
+                        <tr>
+                            <th>Nombre de la Clienta</th>
+                            <th>Número de Teléfono</th>
+                            <th>Acción de Privacidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        clientes.forEach(cli => {
+            html += `
+                <tr>
+                    <td class="fw-bold">${cli.nombre}</td>
+                    <td>${cli.telefono}</td>
+                    <td>
+                        <button onclick="eliminarClienteGuardado('${cli.telefono}')" class="btn btn-outline-danger btn-sm rounded-pill">🗑️ Eliminar Registro</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small mt-3"><em>Nota: Si eliminas el registro de una clienta, su número dejará de autocompletar sus datos automáticamente por razones de privacidad y cambio de línea.</em></p>
+        `;
+    }
+
+    html += `</section>`;
+    return html;
+}
+
+// Función para que la admin elimine los datos guardados de una clienta
+function eliminarClienteGuardado(telefono) {
+    if (confirm(`¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`)) {
+        let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
+        clientes = clientes.filter(c => c.telefono !== telefono);
+        localStorage.setItem("clientes_estudio", JSON.stringify(clientes));
+        renderizarPaginaPrincipal();
+    }
+}
+
 function exportarExcel() {
     const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     if (citas.length === 0) { alert("No hay citas para exportar."); return; }
@@ -239,7 +300,12 @@ function configurarEventos() {
             document.getElementById("ident-telefono").value = "";
             document.getElementById("ident-error").classList.add("d-none");
             document.getElementById("paso-busqueda").classList.remove("d-none");
-            document.getElementById("paso-nuevo-registro").classList.add("d-none");
+            
+            const divConfirmar = document.getElementById("paso-confirmacion-nombre");
+            if (divConfirmar) divConfirmar.classList.add("d-none");
+
+            const pasoNuevo = document.getElementById("paso-nuevo-registro");
+            if (pasoNuevo) pasoNuevo.classList.add("d-none");
         });
     }
 
@@ -259,12 +325,54 @@ function configurarEventos() {
 
             let reg = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
             let enc = reg.find(c => c.telefono === tel);
+
             if (enc) {
-                localStorage.setItem("usuario_activo", JSON.stringify(enc));
-                bootstrap.Modal.getInstance(mLogin).hide();
-                inicializarSesion(); renderizarPaginaPrincipal();
+                document.getElementById("paso-busqueda").classList.add("d-none");
+                
+                let divConfirmar = document.getElementById("paso-confirmacion-nombre");
+                if (!divConfirmar) {
+                    divConfirmar = document.createElement("div");
+                    divConfirmar.id = "paso-confirmacion-nombre";
+                    divConfirmar.innerHTML = `
+                        <div class="alert alert-warning py-2 small">Hemos encontrado un registro con este número. Por seguridad (números reciclados), indícanos tu nombre para validar tu identidad:</div>
+                        <form id="form-val-nombre">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Escribe tu Nombre para Confirmar</label>
+                                <input type="text" class="form-control" id="val-nombre-ingresado" required placeholder="Tu nombre">
+                            </div>
+                            <div id="val-error" class="alert alert-danger d-none py-2 fs-6"></div>
+                            <button type="submit" class="btn btn-rose w-100 rounded-pill py-2">Verificar e Ingresar</button>
+                        </form>
+                    `;
+                    mLogin.querySelector(".modal-body").appendChild(divConfirmar);
+                } else {
+                    divConfirmar.classList.remove("d-none");
+                    document.getElementById("val-error").classList.add("d-none");
+                    document.getElementById("val-nombre-ingresado").value = "";
+                }
+
+                document.getElementById("form-val-nombre").onsubmit = function(ev) {
+                    ev.preventDefault();
+                    const nombreIngresado = document.getElementById("val-nombre-ingresado").value.trim().toLowerCase();
+                    const nombreReal = enc.nombre.trim().toLowerCase();
+
+                    if (nombreIngresado === nombreReal || nombreReal.includes(nombreIngresado)) {
+                        localStorage.setItem("usuario_activo", JSON.stringify(enc));
+                        bootstrap.Modal.getInstance(mLogin).hide();
+                        inicializarSesion(); 
+                        renderizarPaginaPrincipal();
+                    } else {
+                        const errVal = document.getElementById("val-error");
+                        errVal.textContent = "El nombre no coincide con el registrado para este número. Si eres una persona nueva con este número, regístrate.";
+                        errVal.classList.remove("d-none");
+                    }
+                };
+
             } else {
                 document.getElementById("paso-busqueda").classList.add("d-none");
+                let divConfirmar = document.getElementById("paso-confirmacion-nombre");
+                if(divConfirmar) divConfirmar.classList.add("d-none");
+
                 document.getElementById("paso-nuevo-registro").classList.remove("d-none");
                 document.getElementById("reg-tel-oculto").value = tel;
             }
