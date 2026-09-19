@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lashes Rose's Studio</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navegación Superior -->
+    <nav id="navbar-principal" class="navbar navbar-expand-lg fixed-top">
+
+        <div class="container">
+            <div class="d-flex align-items-center gap-4">
+                <a href="#Servicios" class = "nav-link">Nuestros Servicios</a>
+                <a href="#comoagendar" class="nav-link">Cómo Agendar</a>
+
+            </div>  
+
+
+            <a class="navbar-brand navbar-logo" href="#">
+                <img src="img/STUDIO.png">   
+            </a>
+               
+
+
+
+            <div class="d-flex align-items-center">
+
+                <span id="usuario-sesion" class="fw-semibold text-secondary me-3">Invitado</span>
+
+                <button id="btn-login-modal" class="btn btn-outline-rose rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">Ingresar</button>
+
+                <button id="btn-logout" class="btn btn-danger rounded-pill d-none">Cerrar Sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Vista Principal -->
+    <main class="container py-4" id="app-content">
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-black py-4 mt-5 border-top">
+        <div class="container text-center">
+            <p class="text-white mb-0">© 2026 Lashes Rose's Studio - Proyecto DAW901 UDB. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Identificación Rápida por Teléfono -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-0 bg-rose-pastel rounded-top-4">
+                    <h5 class="modal-title fw-bold text-white" id="loginModalLabel">Identificación de Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    
+                    <!-- PASO 1: Ingresar Teléfono (Acepta texto para "admin") -->
+                    <div id="paso-busqueda">
+                        <p class="text-muted small mb-3">Ingresa tu número de teléfono celular para identificarte y agendar en segundos:</p>
+                        <form id="form-identificacion">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Número de Teléfono</label>
+                                <input type="text" class="form-control" id="ident-telefono" required placeholder="Ej: 7000-0000">
+                            </div>
+                            <div id="ident-error" class="alert alert-danger d-none py-2 fs-6"></div>
+                            <button type="submit" class="btn btn-rose w-100 rounded-pill py-2">Continuar</button>
+                        </form>
+                    </div>
+
+                    <!-- PASO 2: Si es nueva, pedimos su nombre y autorización -->
+                    <div id="paso-nuevo-registro" class="d-none">
+                        <div class="alert alert-info py-2 small">¡Hola! No encontramos tu número registrado. Por favor indícanos tu nombre:</div>
+                        <form id="form-nuevo-cliente">
+                            <input type="hidden" id="reg-tel-oculto">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre Completo</label>
+                                <input type="text" class="form-control" id="nuevo-nombre" required placeholder="Ej: María López">
+                            </div>
+                            <div class="mb-3 form-check bg-light p-3 rounded-3 border">
+                                <input class="form-check-input mt-1" type="checkbox" id="check-guardar-datos" checked>
+                                <label class="form-check-label small text-muted" for="check-guardar-datos">
+                                     Autorizo guardar mis datos para agendar más rápido en mi próxima cita.
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-rose w-100 rounded-pill py-2">Continuar a la Cita</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
