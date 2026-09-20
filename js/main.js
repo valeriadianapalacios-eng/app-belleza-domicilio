@@ -1,24 +1,38 @@
+/*1. DATOS DE SERVICIOS*/
+
+// Catálogo de servicios disponibles.
 const listaServicios = [
-    { id: 1, categoria: "Pestañas", nombre: "Extensiones Clásicas", precio: 25.00, descripcion: "Aplicación pelo a pelo para una mirada natural y delicada." },
-    { id: 2, categoria: "Pestañas", nombre: "Extensiones Volumen", precio: 40.00, descripcion: "Abundancia y mayor densidad para un efecto glamuroso e impactante." },
-    { id: 3, categoria: "Cejas", nombre: "Laminado de Cejas", precio: 15.00, descripcion: "Diseño, peinado y fijación semipermanente para cejas perfiladas." },
-    { id: 4, categoria: "Cejas", nombre: "Depilación de Cejas", precio: 5.00, descripcion: "Limpieza y perfilado de cejas según la forma de tu rostro." },
-    { id: 5, categoria: "Uñas", nombre: "Uñas Acrílicas Naturales", precio: 15.00, descripcion: "Estructura acrílica con acabado limpio, natural y elegante." },
-    { id: 6, categoria: "Uñas", nombre: "Manicure", precio: 10.00, descripcion: "Cuidado completo de uñas y cutículas con hidratación." },
-    { id: 7, categoria: "Uñas", nombre: "Pedicure", precio: 12.00, descripcion: "Tratamiento y estética para pies impecables y descansados." },
-    { id: 8, categoria: "Uñas", nombre: "Esmaltado Permanente", precio: 10.00, descripcion: "Color duradero en uña natural con secado en lámpara UV/LED." }
+    { id: 1, categoria: "Pestañas", nombre: "Extensiones Clásicas", precio: 25.00, descripcion: "Aplicación pelo a pelo para una mirada natural y delicada.", imagen: "img/extensionesclasicas.jpg" },
+    { id: 2, categoria: "Pestañas", nombre: "Extensiones Volumen", precio: 40.00, descripcion: "Abundancia y mayor densidad para un efecto glamuroso e impactante.", imagen: "img/extensionesvolumen.jpg" },
+    { id: 3, categoria: "Cejas", nombre: "Laminado de Cejas", precio: 15.00, descripcion: "Diseño, peinado y fijación semipermanente para cejas perfiladas.", imagen: "img/laminadodecejas.jpg" },
+    { id: 4, categoria: "Cejas", nombre: "Depilación de Cejas", precio: 5.00, descripcion: "Limpieza y perfilado de cejas según la forma de tu rostro.", imagen: "img/depilaciondecejas.jpg" },
+    { id: 5, categoria: "Uñas", nombre: "Uñas Acrílicas Naturales", precio: 15.00, descripcion: "Estructura acrílica con acabado limpio, natural y elegante.", imagen: "img/natuales.jpg" },
+    { id: 6, categoria: "Uñas", nombre: "Manicure", precio: 10.00, descripcion: "Cuidado completo de uñas y cutículas con hidratación.", imagen: "img/manicure.jpg" },
+    { id: 7, categoria: "Uñas", nombre: "Pedicure", precio: 12.00, descripcion: "Tratamiento y estética para pies impecables y descansados.", imagen: "img/pedicure.jpg" },
+    { id: 8, categoria: "Uñas", nombre: "Esmaltado Permanente", precio: 10.00, descripcion: "Color duradero en uña natural con secado en lámpara UV/LED.", imagen: "img/esmaltado.jpg" }
+
 ];
 
+
+/*2. INICIALIZACIÓN*/
+
+// Inicia la sesión, carga la página y activa los eventos.
 document.addEventListener("DOMContentLoaded", () => {
     inicializarSesion();
     renderizarPaginaPrincipal();
     configurarEventos();
 });
 
+
+/*3. SESIÓN DE USUARIO*/
+
+// Obtiene el usuario activo guardado en localStorage.
 function obtenerUsuario() {
     return JSON.parse(localStorage.getItem("usuario_activo"));
 }
 
+
+// Actualiza el navbar según exista una sesión activa.
 function inicializarSesion() {
     const usr = obtenerUsuario();
     const lbl = document.getElementById("usuario-sesion");
@@ -26,7 +40,7 @@ function inicializarSesion() {
     const btnO = document.getElementById("btn-logout");
 
     if (usr) {
-        lbl.textContent = usr.rol === 'admin' ? "👑 Modo Administradora" : `✨ Hola, ${usr.nombre}`;
+        lbl.textContent = usr.rol === 'admin' ? " Modo Administradora" : `Hola, ${usr.nombre}`;
         btnL.classList.add("d-none");
         btnO.classList.remove("d-none");
     } else {
@@ -36,6 +50,10 @@ function inicializarSesion() {
     }
 }
 
+
+/*4. PÁGINA PRINCIPAL*/
+
+// Genera la vista según sea invitado, cliente o administradora.
 function renderizarPaginaPrincipal() {
     const app = document.getElementById("app-content");
     if (!app) return;
@@ -52,7 +70,6 @@ function renderizarPaginaPrincipal() {
                     <h2 class="fw-bold text-rose-dark mb-1">Panel de Control - Lashes Rose's Studio</h2>
                     <p class="text-muted mb-0 small">Bienvenida, Administradora. Gestiona la agenda de citas y los datos de las clientas.</p>
                 </div>
-                <button onclick="cerrarSesionCliente()" class="btn btn-outline-danger btn-sm rounded-pill">Cerrar Sesión</button>
             </div>
         `;
         html += renderizarTablaCitas("Agenda General de Citas", true);
@@ -62,35 +79,91 @@ function renderizarPaginaPrincipal() {
     }
 
     html += `
-        <section class="p-5 mb-4 bg-white rounded-4 shadow-sm border text-center">
-            <h1 class="fw-bold text-rose-dark mb-3">🌸 Lashes Rose's Studio</h1>
-            <p class="lead text-muted mx-auto" style="max-width: 750px;">
-                Servicios profesionales de belleza a domicilio. Nos acoplamos a tus necesidades y estilo de vida, 
-                ahorrándote tiempo y brindándote una experiencia cómoda y personalizada directamente en tu hogar.
+       <section class="hero-principal">
+             <video class="hero-video" autoplay muted loop playsinline> <source src="img/SDB.mp4" type="video/mp4">   </video>
+
+             <div class="hero-overlay"></div>
+
+            <div class="hero-contenido text-center">
+
+            <img src="img/LOGOSALON.png" alt="Logo Lashes Rose's Studio" class="hero-logo">
+
+            <h1 class="hero-titulo">Lashes Rose's Studio</h1>
+
+            <p class="hero-texto">
+                    Servicios profesionales de belleza a domicilio. 
+                    Nos acoplamos a tus necesidades y estilo de vida
+                    ahorrándote tíempo y brindándote una experiencia cómoda y personalizada directamente en tu hogar.
             </p>
-            <hr class="my-4 w-25 mx-auto border-rose">
-            <div class="row text-start mt-4 g-4">
-                <div class="col-md-4"><div class="p-3 border rounded-3 h-100 bg-light"><h6 class="fw-bold text-rose-dark">⏱️ Ahorro de Tiempo</h6><p class="small text-muted mb-0">Disfruta de tratamientos de alta calidad sin traslados ni filas.</p></div></div>
-                <div class="col-md-4"><div class="p-3 border rounded-3 h-100 bg-light"><h6 class="fw-bold text-rose-dark">🏠 Comodidad en Casa</h6><p class="small text-muted mb-0">Llevamos todo el equipo necesario para consentirte en tu propio espacio.</p></div></div>
-                <div class="col-md-4"><div class="p-3 border rounded-3 h-100 bg-light"><h6 class="fw-bold text-rose-dark">📅 Reserva Ágil</h6><p class="small text-muted mb-0">Elige tu servicio favorito y agenda tu cita de inmediato.</p></div></div>
             </div>
         </section>
     `;
 
     html += renderizarSeccionServicios();
 
-    if (!usr) {
-        html += `
-            <section class="my-5 p-5 bg-white rounded-4 shadow-sm border">
-                <h3 class="fw-bold text-rose-dark mb-4 text-center">¿Cómo Agendar Tu Cita a Domicilio?</h3>
-                <div class="row g-4">
-                    <div class="col-md-4 text-center"><div class="p-3 border rounded-3 h-100 bg-light"><span class="fs-2 text-rose-dark fw-bold">1</span><h6 class="fw-bold mt-2">Elige tu Servicio</h6><p class="small text-muted mb-0">Haz clic en <strong>Reservar</strong> en el servicio que prefieras.</p></div></div>
-                    <div class="col-md-4 text-center"><div class="p-3 border rounded-3 h-100 bg-light"><span class="fs-2 text-rose-dark fw-bold">2</span><h6 class="fw-bold mt-2">Identifícate</h6><p class="small text-muted mb-0">Ingresa tu número de teléfono celular.</p></div></div>
-                    <div class="col-md-4 text-center"><div class="p-3 border rounded-3 h-100 bg-light"><span class="fs-2 text-rose-dark fw-bold">3</span><h6 class="fw-bold mt-2">¡Listo para Agendar!</h6><p class="small text-muted mb-0">Selecciona tu fecha, hora disponible y dirección exacta en casa.</p></div></div>
+    // Si no hay sesión, muestra la sección con los pasos para agendar.
+   if (!usr) {
+    html += `
+      <section id="como-agendar" class="seccion-agendar">
+
+    <div class="agendar-encabezado">
+        <span class="agendar-linea"></span>
+
+        <h2 class="agendar-titulo">
+            ¿Cómo Agendar Tu Cita a Domicilio?
+        </h2>
+
+        <span class="agendar-linea"></span>
+    </div>
+
+    <div class="agendar-box">
+
+        <p class="agendar-subtitulo">
+            Es muy fácil, solo sigue estos 3 pasos
+        </p>
+
+                <div class="agendar-pasos">
+
+                    <div class="agendar-paso">
+                        <div class="agendar-numero">1</div>
+
+                        <h3>Elige tu Servicio</h3>
+
+                        <p>
+                            Haz clic en Reservar en el servicio que prefieras.
+                        </p>
+                    </div>
+
+
+                    <div class="agendar-paso">
+                        <div class="agendar-numero">2</div>
+
+                        <h3>Identifícate</h3>
+
+                        <p>
+                            Ingresa tu número de teléfono celular.
+                        </p>
+                    </div>
+
+
+                    <div class="agendar-paso">
+                        <div class="agendar-numero">3</div>
+
+                        <h3>¡Listo para Agendar!</h3>
+
+                        <p>
+                            Selecciona la fecha, hora disponible y dirección exacta en casa.
+                        </p>
+                    </div>
+
                 </div>
-            </section>
-        `;
-    } else if (usr && usr.rol === "cliente") {
+
+            </div>
+
+        </section>
+    `;
+} 
+    else if (usr && usr.rol === "cliente") {
         html += renderizarFormularioReserva(usr);
         html += renderizarTablaCitas("Mis Citas Agendadas", false, usr.telefono);
     }
@@ -105,20 +178,147 @@ function renderizarPaginaPrincipal() {
     }
 }
 
+
+/*5. SERVICIOS*/
+
+// Genera las tarjetas de Pestañas, Cejas y Uñas.
 function renderizarSeccionServicios() {
-    let html = `<section id="servicios" class="my-5"><h2 class="text-center fw-bold text-rose-dark mb-4">Nuestros Servicios</h2><div class="row g-4">`;
-    ["Pestañas", "Cejas", "Uñas"].forEach(cat => {
-        const sub = listaServicios.filter(s => s.categoria === cat);
-        html += `<div class="col-lg-4 col-md-6"><div class="card h-100 border-0 shadow-sm rounded-4 border-top border-4 border-rose overflow-hidden"><div class="card-header bg-rose-pastel text-center py-3"><h4 class="fw-bold text-rose-dark mb-0">${cat}</h4></div><div class="card-body p-4"><ul class="list-group list-group-flush">`;
-        sub.forEach((s, idx) => {
-            html += `<li class="list-group-item px-0 py-3 ${idx !== sub.length - 1 ? 'border-bottom' : ''}"><div class="d-flex justify-content-between align-items-center mb-1"><h6 class="fw-bold mb-0">${s.nombre}</h6><span class="fs-5 fw-bold text-rose-dark">$${s.precio.toFixed(2)}</span></div><p class="text-muted small mb-2">${s.descripcion}</p><button onclick="intentarReservar('${s.nombre}')" class="btn btn-rose btn-sm rounded-pill px-3">Reservar</button></li>`;
-        });
-        html += `</ul></div></div></div>`;
+
+    const pestanas = listaServicios.filter(s => s.categoria === "Pestañas");
+    const cejas = listaServicios.filter(s => s.categoria === "Cejas");
+    const unas = listaServicios.filter(s => s.categoria === "Uñas");
+
+    let html = `
+        <section id="servicios" class="seccion-servicios">
+
+            <!-- TEXTO SUPERIOR -->
+            <div class="servicios-etiqueta">
+                <span></span>
+                <p>Belleza a tu alcance</p>
+                <span></span>
+            </div>
+
+            <!-- TÍTULO -->
+            <h2 class="titulo-servicios text-center">
+                Nuestros Servicios
+            </h2>
+
+            <!-- DESCRIPCIÓN -->
+            <p class="subtitulo-servicios">
+                Cuidamos cada detalle para que te sientas siempre tu mejor versión.
+            </p>
+
+
+            <!-- PESTAÑAS Y CEJAS -->
+            <div class="bloque-servicios">
+
+                <!-- PESTAÑAS -->
+                <div class="grupo-servicios">
+
+                    <div class="encabezado-categoria">
+                        <h3>Pestañas</h3>
+                        <span class="linea-categoria"></span>
+                        <p>MÁS MIRADA, MÁS CONFIANZA</p>
+                    </div>
+
+                    <div class="grid-servicios">
+    `;
+
+    pestanas.forEach(s => {
+        html += `
+            <div class="tarjeta-servicio"
+                 style="background-image: url('${s.imagen}')"
+                 onclick="intentarReservar('${s.nombre}')">
+
+                <div class="info-servicio">
+                    <h4>${s.nombre}</h4>
+                    <p>${s.descripcion}</p>
+                    <span>$${s.precio.toFixed(2)}</span>
+                </div>
+
+            </div>
+        `;
     });
-    html += `</div></section>`;
+
+    html += `
+                    </div>
+                </div>
+
+
+                <!-- CEJAS -->
+                <div class="grupo-servicios">
+
+                    <div class="encabezado-categoria">
+                        <h3>Cejas</h3>
+                        <span class="linea-categoria"></span>
+                        <p>DEFINE TU BELLEZA NATURAL</p>
+                    </div>
+
+                    <div class="grid-servicios">
+    `;
+
+    cejas.forEach(s => {
+        html += `
+            <div class="tarjeta-servicio"
+                 style="background-image: url('${s.imagen}')"
+                 onclick="intentarReservar('${s.nombre}')">
+
+                <div class="info-servicio">
+                    <h4>${s.nombre}</h4>
+                    <p>${s.descripcion}</p>
+                    <span>$${s.precio.toFixed(2)}</span>
+                </div>
+
+            </div>
+        `;
+    });
+
+    html += `
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- UÑAS -->
+            <div class="seccion-unas">
+
+                <div class="encabezado-categoria">
+                    <h3>Uñas</h3>
+                    <span class="linea-categoria"></span>
+                    <p>TU ESTILO EN CADA DETALLE</p>
+                </div>
+
+                <div class="grid-unas">
+    `;
+
+    unas.forEach(s => {
+        html += `
+            <div class="tarjeta-servicio"
+                 style="background-image: url('${s.imagen}')"
+                 onclick="intentarReservar('${s.nombre}')">
+
+                <div class="info-servicio">
+                    <h4>${s.nombre}</h4>
+                    <p>${s.descripcion}</p>
+                    <span>$${s.precio.toFixed(2)}</span>
+                </div>
+
+            </div>
+        `;
+    });
+
+    html += `
+                </div>
+            </div>
+
+        </section>
+    `;
+
     return html;
 }
 
+// Guarda el servicio seleccionado y abre el login o la reserva.
 function intentarReservar(nombreServicio) {
     sessionStorage.setItem("servicio_seleccionado", nombreServicio);
     const usr = obtenerUsuario();
@@ -131,6 +331,10 @@ function intentarReservar(nombreServicio) {
     }
 }
 
+
+/*6. RESERVAS Y GOOGLE MAPS*/
+
+// Genera el formulario para crear una cita.
 function renderizarFormularioReserva(usr) {
     let opts = listaServicios.map(s => `<option value="${s.nombre}">${s.nombre} - $${s.precio.toFixed(2)}</option>`).join("");
     return `
@@ -143,15 +347,71 @@ function renderizarFormularioReserva(usr) {
                 <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
                 <div class="col-md-3"><label class="form-label fw-semibold">Fecha</label><input type="date" id="reserva-fecha" class="form-control" required onchange="actualizarHorariosDisponibles()"></div>
                 <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
+                
+                <div class="col-12">
+    <label class="form-label fw-semibold">Dirección de Domicilio</label>
+
+    <textarea
+        id="reserva-direccion"
+        class="form-control"
+        rows="2"
+        required
+        placeholder="Ej: Calle, número de casa, colonia, municipio, departamento"></textarea>
+
+    <small class="text-muted d-block mt-1">
+        Escribe la dirección lo más completa posible para mejorar la precisión del mapa.
+    </small>
+
+    <button
+        type="button"
+        class="btn btn-outline-rose mt-2"
+        onclick="abrirGoogleMaps()">
+        Ver ubicación en el mapa
+    </button>
+
+    <div id="contenedor-mapa" class="mt-3 d-none">
+        <iframe
+            id="mapa-google"
+            width="100%"
+            height="350"
+            style="border:0; border-radius:15px;"
+            loading="lazy">
+        </iframe>
+    </div>
+</div>
+
+
                 <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion">🔒 <strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
             <div id="reserva-mensaje" class="mt-3"></div>
         </section>
     `;
+    
+    }
+
+
+
+// Muestra la dirección escrita dentro de Google Maps.
+function abrirGoogleMaps() {
+    const direccion = document.getElementById("reserva-direccion").value.trim();
+
+    if (!direccion) {
+        alert("Primero ingresa una dirección.");
+        return;
+    }
+
+    const direccionCompleta = `${direccion}, El Salvador`;
+
+    const mapa = document.getElementById("mapa-google");
+    const contenedor = document.getElementById("contenedor-mapa");
+
+    mapa.src = `https://www.google.com/maps?q=${encodeURIComponent(direccionCompleta)}&output=embed`;
+
+    contenedor.classList.remove("d-none");
 }
 
+// Muestra solamente los horarios que aún están libres.
 function actualizarHorariosDisponibles() {
     const f = document.getElementById("reserva-fecha").value;
     const sH = document.getElementById("reserva-hora");
@@ -167,6 +427,10 @@ function actualizarHorariosDisponibles() {
     sH.innerHTML = `<option value="">-- Selecciona una hora --</option>` + libres.map(h => `<option value="${h}">${h} hrs</option>`).join("");
 }
 
+
+/*7. CITAS Y PANEL DE ADMINISTRACIÓN*/
+
+// Genera la tabla de citas para cliente o administradora.
 function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     if (filtroTel) citas = citas.filter(c => c.telefono === filtroTel);
@@ -186,8 +450,39 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
             const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
             html += `<tr>`;
             if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
-            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td><small>${c.direccion}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;
-            if (esAdmin) {
+
+
+html += `
+    <td>${c.servicio}</td>
+
+    <td>
+        ${c.fecha} - ${c.hora} hrs
+    </td>
+
+    <td style="min-width: 300px;">
+        <small class="d-block mb-2">
+            ${c.direccion}
+        </small>
+
+        ${esAdmin ? `
+            <iframe
+                src="https://www.google.com/maps?q=${encodeURIComponent(c.direccion + ', El Salvador')}&output=embed"
+                width="100%"
+                height="180"
+                style="border:0; border-radius:12px;"
+                loading="lazy">
+            </iframe>
+        ` : ''}
+    </td>
+
+    <td>
+        <span class="badge ${badge}">
+            ${c.estado}
+        </span>
+    </td>
+
+    <td>
+`;            if (esAdmin) {
                 html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button><button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Eliminar</button>`;
             } else {
                 html += `<button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Cancelar</button>`;
@@ -200,7 +495,7 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     return html;
 }
 
-// NUEVA FUNCIÓN: Tabla de gestión de datos de clientas guardadas para la Admin
+// Genera la tabla de clientas que autorizaron guardar sus datos.
 function renderizarTablaClientesAdmin() {
     let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
 
@@ -252,7 +547,9 @@ function renderizarTablaClientesAdmin() {
     return html;
 }
 
-// Función para que la admin elimine los datos guardados de una clienta
+/*8. ACCIONES DE ADMINISTRACIÓN*/
+
+// Elimina los datos guardados de una clienta, sin borrar sus citas.
 function eliminarClienteGuardado(telefono) {
     if (confirm(`¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`)) {
         let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
@@ -262,6 +559,8 @@ function eliminarClienteGuardado(telefono) {
     }
 }
 
+
+// Descarga todas las citas en formato CSV compatible con Excel.
 function exportarExcel() {
     const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     if (citas.length === 0) { alert("No hay citas para exportar."); return; }
@@ -273,6 +572,8 @@ function exportarExcel() {
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 
+
+// Cambia el estado de una cita.
 function cambiarEstadoCita(id, estado) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     citas = citas.map(c => c.id === id ? { ...c, estado } : c);
@@ -280,6 +581,8 @@ function cambiarEstadoCita(id, estado) {
     renderizarPaginaPrincipal();
 }
 
+
+// Elimina una cita por su identificador.
 function eliminarCita(id) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     citas = citas.filter(c => c.id !== id);
@@ -287,12 +590,18 @@ function eliminarCita(id) {
     renderizarPaginaPrincipal();
 }
 
+
+// Cierra la sesión actual y vuelve a cargar la página.
 function cerrarSesionCliente() {
     localStorage.removeItem("usuario_activo");
     inicializarSesion();
     renderizarPaginaPrincipal();
 }
 
+
+/*9. LOGIN, REGISTRO Y EVENTOS*/
+
+// Controla login, registro, cierre de sesión y creación de citas.
 function configurarEventos() {
     const mLogin = document.getElementById("loginModal");
     if (mLogin) {
@@ -457,3 +766,20 @@ function configurarEventos() {
         }
     });
 }
+
+/* 10. NAVBAR*/
+
+// Cambia el fondo del navbar cuando el usuario hace scroll.
+function actualizarNavbar() {
+    const navbar = document.getElementById("navbar-principal");
+    if (!navbar) return;
+
+    if (window.scrollY > 5) {
+        navbar.classList.add("navbar-scroll");
+    } else {
+        navbar.classList.remove("navbar-scroll");
+    }
+}
+
+window.addEventListener("scroll", actualizarNavbar);
+window.addEventListener("load", actualizarNavbar);
