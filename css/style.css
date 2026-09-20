@@ -1,6 +1,4 @@
-/* ==================================================
-   1. FUENTE Y COLORES GENERALES
-================================================== */
+/*1. FUENTE Y COLORES GENERALES*/
 
 @font-face {
     font-family: 'ivy-presto-text';
@@ -14,15 +12,25 @@
     --text-dark: #4a4e69;
 }
 
+html,
 body {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     color: var(--text-dark) !important;
     font-family: 'ivy-presto-text', serif;
 }
 
+#app-content {
+    flex: 1;
+}
 
-/* ==================================================
-   2. NAVBAR
-================================================== */
+
+/*2. NAVBAR*/
 
 #navbar-principal {
     width: 100%;
@@ -64,9 +72,7 @@ body {
 }
 
 
-/* ==================================================
-   3. PORTADA / VIDEO PRINCIPAL
-================================================== */
+/*3.PORTADA y VIDEO PRINCIPAL*/
 
 .hero-principal {
     position: relative;
@@ -144,16 +150,14 @@ body {
 }
 
 
-/* ==================================================
-   4. NUESTROS SERVICIOS
-================================================== */
+/*4. NUESTROS SERVICIOS*/
 
 .seccion-servicios {
     padding: 80px 0;
 }
 
 
-/* Belleza a tu alcance */
+/*Texto: Belleza a tu alcance*/
 
 .servicios-etiqueta {
     display: flex;
@@ -183,7 +187,7 @@ body {
 }
 
 
-/* Título principal */
+/*Texto: Título principal */
 
 .titulo-servicios {
     font-size: 3rem;
@@ -206,7 +210,7 @@ body {
 }
 
 
-/* Pestañas y Cejas */
+/*Texto: Pestañas y Cejas */
 
 .bloque-servicios {
     display: grid;
@@ -225,7 +229,7 @@ body {
 }
 
 
-/* Uñas */
+/*Texto: Uñas */
 
 .grid-unas {
     display: grid;
@@ -235,7 +239,7 @@ body {
 }
 
 
-/* Encabezados de categorías */
+/*Texto: Encabezados de categorías */
 
 .encabezado-categoria {
     display: flex;
@@ -276,7 +280,7 @@ body {
 }
 
 
-/* Tarjetas de servicios */
+/*Texto: Tarjetas de servicios */
 
 .tarjeta-servicio {
     position: relative;
@@ -303,7 +307,7 @@ body {
 }
 
 
-/* Información sobre las imágenes */
+/*Texto: Información sobre las imágenes */
 
 .info-servicio {
     position: absolute;
@@ -327,9 +331,7 @@ body {
 }
 
 
-/* ==================================================
-   5. CÓMO AGENDAR
-================================================== */
+/*5. CÓMO AGENDAR*/
 
 .seccion-agendar {
     padding: 80px 0;
@@ -344,7 +346,7 @@ body {
 }
 
 
-/* Título */
+/*Texto: Título */
 
 .agendar-titulo {
     text-align: center;
@@ -379,7 +381,7 @@ body {
 }
 
 
-/* Los tres pasos */
+/*Texto de títulos "¿Cómo Agendar Tu Cita a Domicilio?"*/
 
 .agendar-pasos {
     display: flex;
@@ -398,7 +400,7 @@ body {
 }
 
 
-/* Círculos */
+/*Círculos que van en medio del texto*/
 
 .agendar-numero {
     width: 55px;
@@ -420,7 +422,7 @@ body {
 }
 
 
-/* Líneas entre los círculos */
+/*Líneas entre los círculos*/
 
 .agendar-paso:not(:last-child)::after {
     content: "";
@@ -437,7 +439,7 @@ body {
 }
 
 
-/* Textos de cada paso */
+/*Textos de cada numeral*/
 
 .agendar-paso h3 {
     color: #ffffff;
@@ -459,9 +461,7 @@ body {
 }
 
 
-/* ==================================================
-   6. MODAL, FORMULARIOS Y BOTONES
-================================================== */
+/*6. MODAL, FORMULARIOS Y BOTONES*/
 
 .text-rose-dark {
     color: var(--rose-main) !important;
@@ -472,7 +472,7 @@ body {
 }
 
 
-/* Botón principal */
+/*Botón principal*/
 
 .btn-rose {
     background-color: var(--rose-main) !important;
@@ -489,10 +489,10 @@ body {
 }
 
 
-/* Botón grande */
+/*Botón grande*/
 
 .btn-rose-lg {
-    background-color: var(--rose-main) !important; /* */
+    background-color: var(--rose-main) !important; 
 
     color: #ffffff !important;
 
@@ -513,7 +513,7 @@ body {
 }
 
 
-/* Botón con borde */
+/*Botón con borde*/
 
 .btn-outline-rose {
     color: var(--rose-main) !important;
@@ -528,7 +528,7 @@ body {
 }
 
 
-/* Inputs */
+/*Inputs*/
 
 .form-control:focus,
 .form-select:focus {
@@ -538,9 +538,7 @@ body {
 }
 
 
-/* ==================================================
-   7. RESPONSIVE
-================================================== */
+/*7. RESPONSIVE*/
 
 @media (max-width: 992px) {
 
