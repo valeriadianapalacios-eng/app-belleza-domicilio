@@ -14,12 +14,29 @@
 <body class="bg-light">
 
     <!-- Navegación Superior -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <nav id="navbar-principal" class="navbar navbar-expand-lg fixed-top">
+
         <div class="container">
-            <a class="navbar-brand fw-bold text-rose-dark" href="#">🌸 Lashes Rose's Studio</a>
+            <div class="d-flex align-items-center gap-4">
+                <a href="#servicios" class = "nav-link">Nuestros Servicios</a>
+                <a href="#como-agendar" class="nav-link">Cómo Agendar</a>
+
+            </div>  
+
+
+            <a class="navbar-brand navbar-logo" href="#">
+                <img src="img/STUDIO.png">   
+            </a>
+               
+
+
+
             <div class="d-flex align-items-center">
+
                 <span id="usuario-sesion" class="fw-semibold text-secondary me-3">Invitado</span>
+
                 <button id="btn-login-modal" class="btn btn-outline-rose rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">Ingresar</button>
+
                 <button id="btn-logout" class="btn btn-danger rounded-pill d-none">Cerrar Sesión</button>
             </div>
         </div>
@@ -30,9 +47,9 @@
     </main>
 
     <!-- Pie de Página -->
-    <footer class="bg-white py-4 mt-5 border-top">
+    <footer class="bg-black py-4 mt-5 border-top">
         <div class="container text-center">
-            <p class="text-muted mb-0">© 2026 Lashes Rose's Studio - Proyecto DAW901 UDB. Todos los derechos reservados.</p>
+            <p class="text-white mb-0">© 2026 Lashes Rose's Studio - Proyecto DAW901 UDB. Todos los derechos reservados.</p>
         </div>
     </footer>
 
@@ -41,12 +58,12 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow rounded-4">
                 <div class="modal-header border-0 bg-rose-pastel rounded-top-4">
-                    <h5 class="modal-title fw-bold text-rose-dark" id="loginModalLabel">Identificación de Cliente</h5>
+                    <h5 class="modal-title fw-bold text-white" id="loginModalLabel">Identificación de Cliente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     
-                    <!-- PASO 1: Ingresar Teléfono (Acepta texto para "admin") -->
+                    <!-- Ingresar Teléfono (Acepta texto para "admin") -->
                     <div id="paso-busqueda">
                         <p class="text-muted small mb-3">Ingresa tu número de teléfono celular para identificarte y agendar en segundos:</p>
                         <form id="form-identificacion">
@@ -59,7 +76,7 @@
                         </form>
                     </div>
 
-                    <!-- PASO 2: Si es nueva, pedimos su nombre y autorización -->
+                    <!-- Nuevo usuario: Pedir su nombre y autorización -->
                     <div id="paso-nuevo-registro" class="d-none">
                         <div class="alert alert-info py-2 small">¡Hola! No encontramos tu número registrado. Por favor indícanos tu nombre:</div>
                         <form id="form-nuevo-cliente">
@@ -71,7 +88,7 @@
                             <div class="mb-3 form-check bg-light p-3 rounded-3 border">
                                 <input class="form-check-input mt-1" type="checkbox" id="check-guardar-datos" checked>
                                 <label class="form-check-label small text-muted" for="check-guardar-datos">
-                                    🔒 Autorizo guardar mis datos para agendar más rápido en mi próxima cita.
+                                     Autorizo guardar mis datos para agendar más rápido en mi próxima cita.
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-rose w-100 rounded-pill py-2">Continuar a la Cita</button>
