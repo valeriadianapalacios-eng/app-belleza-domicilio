@@ -1,3 +1,6 @@
+/*1. DATOS DE SERVICIOS*/
+
+// Catálogo de servicios disponibles.
 const listaServicios = [
     { id: 1, categoria: "Pestañas", nombre: "Extensiones Clásicas", precio: 25.00, descripcion: "Aplicación pelo a pelo para una mirada natural y delicada.", imagen: "img/extensionesclasicas.jpg" },
     { id: 2, categoria: "Pestañas", nombre: "Extensiones Volumen", precio: 40.00, descripcion: "Abundancia y mayor densidad para un efecto glamuroso e impactante.", imagen: "img/extensionesvolumen.jpg" },
@@ -10,16 +13,26 @@ const listaServicios = [
 
 ];
 
+
+/*2. INICIALIZACIÓN*/
+
+// Inicia la sesión, carga la página y activa los eventos.
 document.addEventListener("DOMContentLoaded", () => {
     inicializarSesion();
     renderizarPaginaPrincipal();
     configurarEventos();
 });
 
+
+/*3. SESIÓN DE USUARIO*/
+
+// Obtiene el usuario activo guardado en localStorage.
 function obtenerUsuario() {
     return JSON.parse(localStorage.getItem("usuario_activo"));
 }
 
+
+// Actualiza el navbar según exista una sesión activa.
 function inicializarSesion() {
     const usr = obtenerUsuario();
     const lbl = document.getElementById("usuario-sesion");
@@ -37,6 +50,10 @@ function inicializarSesion() {
     }
 }
 
+
+/*4. PÁGINA PRINCIPAL*/
+
+// Genera la vista según sea invitado, cliente o administradora.
 function renderizarPaginaPrincipal() {
     const app = document.getElementById("app-content");
     if (!app) return;
@@ -53,7 +70,6 @@ function renderizarPaginaPrincipal() {
                     <h2 class="fw-bold text-rose-dark mb-1">Panel de Control - Lashes Rose's Studio</h2>
                     <p class="text-muted mb-0 small">Bienvenida, Administradora. Gestiona la agenda de citas y los datos de las clientas.</p>
                 </div>
-                <button onclick="cerrarSesionCliente()" class="btn btn-outline-danger btn-sm rounded-pill">Cerrar Sesión</button>
             </div>
         `;
         html += renderizarTablaCitas("Agenda General de Citas", true);
@@ -85,7 +101,7 @@ function renderizarPaginaPrincipal() {
 
     html += renderizarSeccionServicios();
 
-    /*cambios hechos*/
+    // Si no hay sesión, muestra la sección con los pasos para agendar.
    if (!usr) {
     html += `
       <section id="como-agendar" class="seccion-agendar">
@@ -162,7 +178,11 @@ function renderizarPaginaPrincipal() {
     }
 }
 
-function renderizarSeccionServicios() { /*Cambios hechos */
+
+/*5. SERVICIOS*/
+
+// Genera las tarjetas de Pestañas, Cejas y Uñas.
+function renderizarSeccionServicios() {
 
     const pestanas = listaServicios.filter(s => s.categoria === "Pestañas");
     const cejas = listaServicios.filter(s => s.categoria === "Cejas");
@@ -297,6 +317,8 @@ function renderizarSeccionServicios() { /*Cambios hechos */
 
     return html;
 }
+
+// Guarda el servicio seleccionado y abre el login o la reserva.
 function intentarReservar(nombreServicio) {
     sessionStorage.setItem("servicio_seleccionado", nombreServicio);
     const usr = obtenerUsuario();
@@ -309,6 +331,10 @@ function intentarReservar(nombreServicio) {
     }
 }
 
+
+/*6. RESERVAS Y GOOGLE MAPS*/
+
+// Genera el formulario para crear una cita.
 function renderizarFormularioReserva(usr) {
     let opts = listaServicios.map(s => `<option value="${s.nombre}">${s.nombre} - $${s.precio.toFixed(2)}</option>`).join("");
     return `
@@ -321,15 +347,71 @@ function renderizarFormularioReserva(usr) {
                 <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
                 <div class="col-md-3"><label class="form-label fw-semibold">Fecha</label><input type="date" id="reserva-fecha" class="form-control" required onchange="actualizarHorariosDisponibles()"></div>
                 <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
+                
+                <div class="col-12">
+    <label class="form-label fw-semibold">Dirección de Domicilio</label>
+
+    <textarea
+        id="reserva-direccion"
+        class="form-control"
+        rows="2"
+        required
+        placeholder="Ej: Calle, número de casa, colonia, municipio, departamento"></textarea>
+
+    <small class="text-muted d-block mt-1">
+        Escribe la dirección lo más completa posible para mejorar la precisión del mapa.
+    </small>
+
+    <button
+        type="button"
+        class="btn btn-outline-rose mt-2"
+        onclick="abrirGoogleMaps()">
+        Ver ubicación en el mapa
+    </button>
+
+    <div id="contenedor-mapa" class="mt-3 d-none">
+        <iframe
+            id="mapa-google"
+            width="100%"
+            height="350"
+            style="border:0; border-radius:15px;"
+            loading="lazy">
+        </iframe>
+    </div>
+</div>
+
+
                 <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion">🔒 <strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
             <div id="reserva-mensaje" class="mt-3"></div>
         </section>
     `;
+    
+    }
+
+
+
+// Muestra la dirección escrita dentro de Google Maps.
+function abrirGoogleMaps() {
+    const direccion = document.getElementById("reserva-direccion").value.trim();
+
+    if (!direccion) {
+        alert("Primero ingresa una dirección.");
+        return;
+    }
+
+    const direccionCompleta = `${direccion}, El Salvador`;
+
+    const mapa = document.getElementById("mapa-google");
+    const contenedor = document.getElementById("contenedor-mapa");
+
+    mapa.src = `https://www.google.com/maps?q=${encodeURIComponent(direccionCompleta)}&output=embed`;
+
+    contenedor.classList.remove("d-none");
 }
 
+// Muestra solamente los horarios que aún están libres.
 function actualizarHorariosDisponibles() {
     const f = document.getElementById("reserva-fecha").value;
     const sH = document.getElementById("reserva-hora");
@@ -345,6 +427,10 @@ function actualizarHorariosDisponibles() {
     sH.innerHTML = `<option value="">-- Selecciona una hora --</option>` + libres.map(h => `<option value="${h}">${h} hrs</option>`).join("");
 }
 
+
+/*7. CITAS Y PANEL DE ADMINISTRACIÓN*/
+
+// Genera la tabla de citas para cliente o administradora.
 function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     if (filtroTel) citas = citas.filter(c => c.telefono === filtroTel);
@@ -364,8 +450,39 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
             const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
             html += `<tr>`;
             if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
-            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td><small>${c.direccion}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;
-            if (esAdmin) {
+
+
+html += `
+    <td>${c.servicio}</td>
+
+    <td>
+        ${c.fecha} - ${c.hora} hrs
+    </td>
+
+    <td style="min-width: 300px;">
+        <small class="d-block mb-2">
+            ${c.direccion}
+        </small>
+
+        ${esAdmin ? `
+            <iframe
+                src="https://www.google.com/maps?q=${encodeURIComponent(c.direccion + ', El Salvador')}&output=embed"
+                width="100%"
+                height="180"
+                style="border:0; border-radius:12px;"
+                loading="lazy">
+            </iframe>
+        ` : ''}
+    </td>
+
+    <td>
+        <span class="badge ${badge}">
+            ${c.estado}
+        </span>
+    </td>
+
+    <td>
+`;            if (esAdmin) {
                 html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button><button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Eliminar</button>`;
             } else {
                 html += `<button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Cancelar</button>`;
@@ -378,7 +495,7 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     return html;
 }
 
-// NUEVA FUNCIÓN: Tabla de gestión de datos de clientas guardadas para la Admin
+// Genera la tabla de clientas que autorizaron guardar sus datos.
 function renderizarTablaClientesAdmin() {
     let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
 
@@ -430,7 +547,9 @@ function renderizarTablaClientesAdmin() {
     return html;
 }
 
-// Función para que la admin elimine los datos guardados de una clienta
+/*8. ACCIONES DE ADMINISTRACIÓN*/
+
+// Elimina los datos guardados de una clienta, sin borrar sus citas.
 function eliminarClienteGuardado(telefono) {
     if (confirm(`¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`)) {
         let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
@@ -440,6 +559,8 @@ function eliminarClienteGuardado(telefono) {
     }
 }
 
+
+// Descarga todas las citas en formato CSV compatible con Excel.
 function exportarExcel() {
     const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     if (citas.length === 0) { alert("No hay citas para exportar."); return; }
@@ -451,6 +572,8 @@ function exportarExcel() {
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
 
+
+// Cambia el estado de una cita.
 function cambiarEstadoCita(id, estado) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     citas = citas.map(c => c.id === id ? { ...c, estado } : c);
@@ -458,6 +581,8 @@ function cambiarEstadoCita(id, estado) {
     renderizarPaginaPrincipal();
 }
 
+
+// Elimina una cita por su identificador.
 function eliminarCita(id) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     citas = citas.filter(c => c.id !== id);
@@ -465,12 +590,18 @@ function eliminarCita(id) {
     renderizarPaginaPrincipal();
 }
 
+
+// Cierra la sesión actual y vuelve a cargar la página.
 function cerrarSesionCliente() {
     localStorage.removeItem("usuario_activo");
     inicializarSesion();
     renderizarPaginaPrincipal();
 }
 
+
+/*9. LOGIN, REGISTRO Y EVENTOS*/
+
+// Controla login, registro, cierre de sesión y creación de citas.
 function configurarEventos() {
     const mLogin = document.getElementById("loginModal");
     if (mLogin) {
@@ -636,17 +767,16 @@ function configurarEventos() {
     });
 }
 
-// Sección relacionada al HTML hecha por Cristopher scrollIntoView
-    function actualizarNavbar(){
+/* 10. NAVBAR*/
+
+// Cambia el fondo del navbar cuando el usuario hace scroll.
+function actualizarNavbar() {
     const navbar = document.getElementById("navbar-principal");
-
-
     if (!navbar) return;
 
-    if (window.scrollY > 5){
+    if (window.scrollY > 5) {
         navbar.classList.add("navbar-scroll");
     } else {
-        navbar.classList.remove("navbar-scroll");
         navbar.classList.remove("navbar-scroll");
     }
 }
