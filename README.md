@@ -1,10 +1,10 @@
-Nota: En "rama-dianaa" se encuentra el código final a usar.
-
-App-belleza-domicilio DAW901
+# App Belleza Domicilio - DAW901
 Sistema de gestión y citas de belleza a domicilio.
 
-Integrantes:
+## Nota importante sobre el código
+* El código final y funcional de la aplicación se encuentra en la rama: **`rama-dianaa`**.
 
-Carlos Rodrigo Hernández Guardado HG262490
-Diana Valeria Palcios Ruiz
-Cristopher Enrique Santamaria Chacon SC261741
+## Integrantes
+* Carlos Rodrigo Hernández Guardado (Carnet: HG262490)
+* Diana Valeria Palacios Ruiz (Carnet : PR26136)
+* Cristopher Enrique Santamaria Chacon (Carnet: SC261741)
