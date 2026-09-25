@@ -573,9 +573,7 @@ body {
     }
 
 
-    /* ------------------------------
-       NAVBAR
-    ------------------------------ */
+    /* NAVBAR */
 
     #navbar-principal {
         position: relative !important;
@@ -618,9 +616,7 @@ body {
     }
 
 
-    /* ------------------------------
-       PORTADA
-    ------------------------------ */
+    /* PORTADA */
 
     .hero-principal {
         width: 100vw;
@@ -652,9 +648,7 @@ body {
     }
 
 
-    /* ------------------------------
-       NUESTROS SERVICIOS
-    ------------------------------ */
+    /* NUESTROS SERVICIOS */
 
     .seccion-servicios {
         padding: 55px 0;
@@ -699,7 +693,7 @@ body {
     }
 
 
-    /* Una tarjeta por fila */
+    /* Una ventana por fila */
 
     .grid-servicios,
     .grid-unas {
@@ -730,7 +724,7 @@ body {
     }
 
 
-    /* Tarjetas */
+    /* Ventanas/cuadros */
 
     .tarjeta-servicio {
         width: 100%;
@@ -778,7 +772,7 @@ body {
     }
 
 
-    /* Los pasos pasan de horizontal a vertical */
+    /* De horizontal a vertical */
 
     .agendar-pasos {
         flex-direction: column;
@@ -792,7 +786,7 @@ body {
     }
 
 
-    /* Oculta las líneas horizontales entre números */
+    /* Ocultar las líneas horizontales entre números */
 
     .agendar-paso:not(:last-child)::after {
         display: none;
