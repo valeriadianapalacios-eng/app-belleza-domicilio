@@ -427,7 +427,7 @@ function renderizarTablaClientesAdmin() {
                     <td class="fw-bold">${cli.nombre}</td>
                     <td>${cli.telefono}</td>
                     <td>
-                        <button onclick="eliminarClienteGuardado('${cli.telefono}')" class="btn btn-outline-danger btn-sm rounded-pill">🗑️ Eliminar Registro</button>
+                        <button onclick="eliminarClienteGuardado('${cli.telefono}')" class="btn btn-outline-danger btn-sm rounded-pill"> Eliminar Registro</button>
                     </td>
                 </tr>
             `;
@@ -449,7 +449,7 @@ function renderizarTablaClientesAdmin() {
 
 function eliminarClienteGuardado(telefono) {
     Swal.fire({
-        title: "¿Eliminar registro?",
+        title: "¿?",
         text: `¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`,
         icon: "warning",
         showCancelButton: true,
