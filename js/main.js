@@ -1,6 +1,3 @@
-/*1. DATOS DE SERVICIOS*/
-
-// Catálogo de servicios disponibles.
 const listaServicios = [
     { id: 1, categoria: "Pestañas", nombre: "Extensiones Clásicas", precio: 25.00, descripcion: "Aplicación pelo a pelo para una mirada natural y delicada.", imagen: "img/extensionesclasicas.jpg" },
     { id: 2, categoria: "Pestañas", nombre: "Extensiones Volumen", precio: 40.00, descripcion: "Abundancia y mayor densidad para un efecto glamuroso e impactante.", imagen: "img/extensionesvolumen.jpg" },
@@ -13,26 +10,16 @@ const listaServicios = [
 
 ];
 
-
-/*2. INICIALIZACIÓN*/
-
-// Inicia la sesión, carga la página y activa los eventos.
 document.addEventListener("DOMContentLoaded", () => {
     inicializarSesion();
     renderizarPaginaPrincipal();
     configurarEventos();
 });
 
-
-/*3. SESIÓN DE USUARIO*/
-
-// Obtiene el usuario activo guardado en localStorage.
 function obtenerUsuario() {
     return JSON.parse(localStorage.getItem("usuario_activo"));
 }
 
-
-// Actualiza el navbar según exista una sesión activa.
 function inicializarSesion() {
     const usr = obtenerUsuario();
     const lbl = document.getElementById("usuario-sesion");
@@ -50,10 +37,6 @@ function inicializarSesion() {
     }
 }
 
-
-/*4. PÁGINA PRINCIPAL*/
-
-// Genera la vista según sea invitado, cliente o administradora.
 function renderizarPaginaPrincipal() {
     const app = document.getElementById("app-content");
     if (!app) return;
@@ -70,11 +53,14 @@ function renderizarPaginaPrincipal() {
                     <h2 class="fw-bold text-rose-dark mb-1">Panel de Control - Lashes Rose's Studio</h2>
                     <p class="text-muted mb-0 small">Bienvenida, Administradora. Gestiona la agenda de citas y los datos de las clientas.</p>
                 </div>
+                <button onclick="cerrarSesionCliente()" class="btn btn-outline-danger btn-sm rounded-pill">Cerrar Sesión</button>
             </div>
         `;
+        html += renderizarEstadisticas();
         html += renderizarTablaCitas("Agenda General de Citas", true);
         html += renderizarTablaClientesAdmin(); // Sección nueva para gestionar datos de clientas guardadas
         app.innerHTML = html;
+        inicializarGraficasEstadisticas();
         return;
     }
 
@@ -101,7 +87,7 @@ function renderizarPaginaPrincipal() {
 
     html += renderizarSeccionServicios();
 
-    // Si no hay sesión, muestra la sección con los pasos para agendar.
+    /*cambios hechos*/
    if (!usr) {
     html += `
       <section id="como-agendar" class="seccion-agendar">
@@ -178,11 +164,7 @@ function renderizarPaginaPrincipal() {
     }
 }
 
-
-/*5. SERVICIOS*/
-
-// Genera las tarjetas de Pestañas, Cejas y Uñas.
-function renderizarSeccionServicios() {
+function renderizarSeccionServicios() { /*Cambios hechos */
 
     const pestanas = listaServicios.filter(s => s.categoria === "Pestañas");
     const cejas = listaServicios.filter(s => s.categoria === "Cejas");
@@ -317,24 +299,25 @@ function renderizarSeccionServicios() {
 
     return html;
 }
-
-// Guarda el servicio seleccionado y abre el login o la reserva.
 function intentarReservar(nombreServicio) {
     sessionStorage.setItem("servicio_seleccionado", nombreServicio);
     const usr = obtenerUsuario();
     if (!usr) {
         new bootstrap.Modal(document.getElementById('loginModal')).show();
-    } else if (usr.rol === 'admin') {
-        alert("Estás en modo Administradora. Las reservas se realizan desde cuentas de cliente.");
-    } else {
-        renderizarPaginaPrincipal();
-    }
+    
+} else if (usr.rol === 'admin') {
+    Swal.fire({
+        title: "Modo administradora",
+        text: "Las reservas se realizan desde cuentas de cliente.",
+        icon: "info",
+        confirmButtonColor: "#d63384"
+    });
+} else {
+    renderizarPaginaPrincipal();
 }
 
+}
 
-/*6. RESERVAS Y GOOGLE MAPS*/
-
-// Genera el formulario para crear una cita.
 function renderizarFormularioReserva(usr) {
     let opts = listaServicios.map(s => `<option value="${s.nombre}">${s.nombre} - $${s.precio.toFixed(2)}</option>`).join("");
     return `
@@ -345,73 +328,17 @@ function renderizarFormularioReserva(usr) {
                 <div class="col-md-6"><label class="form-label fw-semibold">Nombre del Cliente</label><input type="text" id="reserva-nombre" class="form-control" required value="${usr.nombre}" readonly></div>
                 <div class="col-md-6"><label class="form-label fw-semibold">Número Telefónico</label><input type="tel" id="reserva-telefono" class="form-control" required value="${usr.telefono}" readonly></div>
                 <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
-                <div class="col-md-3"><label class="form-label fw-semibold">Fecha</label><input type="date" id="reserva-fecha" class="form-control" required onchange="actualizarHorariosDisponibles()"></div>
+                <input type="date" id="reserva-fecha" class="form-control" required min="${new Date().toLocaleDateString('en-CA')}" onchange="actualizarHorariosDisponibles()">
                 <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                
-                <div class="col-12">
-    <label class="form-label fw-semibold">Dirección de Domicilio</label>
-
-    <textarea
-        id="reserva-direccion"
-        class="form-control"
-        rows="2"
-        required
-        placeholder="Ej: Calle, número de casa, colonia, municipio, departamento"></textarea>
-
-    <small class="text-muted d-block mt-1">
-        Escribe la dirección lo más completa posible para mejorar la precisión del mapa.
-    </small>
-
-    <button
-        type="button"
-        class="btn btn-outline-rose mt-2"
-        onclick="abrirGoogleMaps()">
-        Ver ubicación en el mapa
-    </button>
-
-    <div id="contenedor-mapa" class="mt-3 d-none">
-        <iframe
-            id="mapa-google"
-            width="100%"
-            height="350"
-            style="border:0; border-radius:15px;"
-            loading="lazy">
-        </iframe>
-    </div>
-</div>
-
-
+                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
                 <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion">🔒 <strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
             <div id="reserva-mensaje" class="mt-3"></div>
         </section>
     `;
-    
-    }
-
-
-
-// Muestra la dirección escrita dentro de Google Maps.
-function abrirGoogleMaps() {
-    const direccion = document.getElementById("reserva-direccion").value.trim();
-
-    if (!direccion) {
-        alert("Primero ingresa una dirección.");
-        return;
-    }
-
-    const direccionCompleta = `${direccion}, El Salvador`;
-
-    const mapa = document.getElementById("mapa-google");
-    const contenedor = document.getElementById("contenedor-mapa");
-
-    mapa.src = `https://www.google.com/maps?q=${encodeURIComponent(direccionCompleta)}&output=embed`;
-
-    contenedor.classList.remove("d-none");
 }
 
-// Muestra solamente los horarios que aún están libres.
 function actualizarHorariosDisponibles() {
     const f = document.getElementById("reserva-fecha").value;
     const sH = document.getElementById("reserva-hora");
@@ -427,10 +354,6 @@ function actualizarHorariosDisponibles() {
     sH.innerHTML = `<option value="">-- Selecciona una hora --</option>` + libres.map(h => `<option value="${h}">${h} hrs</option>`).join("");
 }
 
-
-/*7. CITAS Y PANEL DE ADMINISTRACIÓN*/
-
-// Genera la tabla de citas para cliente o administradora.
 function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     if (filtroTel) citas = citas.filter(c => c.telefono === filtroTel);
@@ -450,43 +373,18 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
             const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
             html += `<tr>`;
             if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
+            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td><small>${c.direccion}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;
+            
+            if (esAdmin) {
+                html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button>`;
 
-
-html += `
-    <td>${c.servicio}</td>
-
-    <td>
-        ${c.fecha} - ${c.hora} hrs
-    </td>
-
-    <td style="min-width: 300px;">
-        <small class="d-block mb-2">
-            ${c.direccion}
-        </small>
-
-        ${esAdmin ? `
-            <iframe
-                src="https://www.google.com/maps?q=${encodeURIComponent(c.direccion + ', El Salvador')}&output=embed"
-                width="100%"
-                height="180"
-                style="border:0; border-radius:12px;"
-                loading="lazy">
-            </iframe>
-        ` : ''}
-    </td>
-
-    <td>
-        <span class="badge ${badge}">
-            ${c.estado}
-        </span>
-    </td>
-
-    <td>
-`;            if (esAdmin) {
-                html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button><button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Eliminar</button>`;
-            } else {
+                if (c.estado === "Confirmada") {
+                html += `<button onclick="cambiarEstadoCita(${c.id}, 'Completada')" class="btn btn-outline-primary btn-sm rounded-pill me-1">Completar cita</button>`;
+                }
+                 html += `<button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Eliminar</button>`;
+                    } else {
                 html += `<button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Cancelar</button>`;
-            }
+                }
             html += `</td></tr>`;
         });
         html += `</tbody></table></div>`;
@@ -495,7 +393,7 @@ html += `
     return html;
 }
 
-// Genera la tabla de clientas que autorizaron guardar sus datos.
+// NUEVA FUNCIÓN: Tabla de gestión de datos de clientas guardadas para la Admin
 function renderizarTablaClientesAdmin() {
     let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
 
@@ -547,23 +445,50 @@ function renderizarTablaClientesAdmin() {
     return html;
 }
 
-/*8. ACCIONES DE ADMINISTRACIÓN*/
+// Función para que la admin elimine los datos guardados de una clienta
 
-// Elimina los datos guardados de una clienta, sin borrar sus citas.
 function eliminarClienteGuardado(telefono) {
-    if (confirm(`¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`)) {
-        let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
-        clientes = clientes.filter(c => c.telefono !== telefono);
-        localStorage.setItem("clientes_estudio", JSON.stringify(clientes));
-        renderizarPaginaPrincipal();
-    }
+    Swal.fire({
+        title: "¿Eliminar registro?",
+        text: `¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d63384",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
+            clientes = clientes.filter(c => c.telefono !== telefono);
+            localStorage.setItem("clientes_estudio", JSON.stringify(clientes));
+
+            renderizarPaginaPrincipal();
+
+            Swal.fire({
+                title: "¡Eliminado!",
+                text: "Los datos guardados de la clienta se eliminaron correctamente.",
+                icon: "success",
+                confirmButtonColor: "#d63384"
+            });
+        }
+    });
 }
 
 
-// Descarga todas las citas en formato CSV compatible con Excel.
 function exportarExcel() {
     const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
-    if (citas.length === 0) { alert("No hay citas para exportar."); return; }
+    
+if (citas.length === 0) {
+    Swal.fire({
+        title: "Sin citas",
+        text: "No hay citas para exportar.",
+        icon: "info",
+        confirmButtonColor: "#d63384"
+    });
+    return;
+}
+
     let csv = "data:text/csv;charset=utf-8,ID,Cliente,Telefono,Servicio,Fecha,Hora,Direccion,Estado\n";
     citas.forEach(c => { csv += `"${c.id}","${c.nombre}","${c.telefono}","${c.servicio}","${c.fecha}","${c.hora}","${c.direccion.replace(/\n/g, ' ')}","${c.estado}"\n`; });
     const link = document.createElement("a");
@@ -573,35 +498,58 @@ function exportarExcel() {
 }
 
 
-// Cambia el estado de una cita.
 function cambiarEstadoCita(id, estado) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     citas = citas.map(c => c.id === id ? { ...c, estado } : c);
     localStorage.setItem("citas_estudio", JSON.stringify(citas));
     renderizarPaginaPrincipal();
+
+    Swal.fire({
+        title: estado === "Completada" ? "¡Cita completada!" : "¡Cita confirmada!",
+        text: estado === "Completada"
+            ? "La cita se marcó como completada correctamente."
+            : "La cita se confirmó correctamente.",
+        icon: "success",
+        confirmButtonColor: "#d63384"
+    });
 }
 
 
-// Elimina una cita por su identificador.
+
 function eliminarCita(id) {
-    let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
-    citas = citas.filter(c => c.id !== id);
-    localStorage.setItem("citas_estudio", JSON.stringify(citas));
-    renderizarPaginaPrincipal();
+    Swal.fire({
+        title: "¿Eliminar cita?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d63384",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+            citas = citas.filter(c => c.id !== id);
+            localStorage.setItem("citas_estudio", JSON.stringify(citas));
+            renderizarPaginaPrincipal();
+
+            Swal.fire({
+                title: "¡Cita eliminada!",
+                text: "La cita se eliminó correctamente.",
+                icon: "success",
+                confirmButtonColor: "#d63384"
+            });
+        }
+    });
 }
 
 
-// Cierra la sesión actual y vuelve a cargar la página.
 function cerrarSesionCliente() {
     localStorage.removeItem("usuario_activo");
     inicializarSesion();
     renderizarPaginaPrincipal();
 }
 
-
-/*9. LOGIN, REGISTRO Y EVENTOS*/
-
-// Controla login, registro, cierre de sesión y creación de citas.
 function configurarEventos() {
     const mLogin = document.getElementById("loginModal");
     if (mLogin) {
@@ -729,11 +677,11 @@ function configurarEventos() {
             const hora = document.getElementById("reserva-hora").value;
             const direccion = document.getElementById("reserva-direccion").value;
             const msg = document.getElementById("reserva-mensaje");
-
-            if (!nombre || !telefono || !servicio || !fecha || !hora || !direccion) {
-                msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos.</div>`;
-                return;
-            }
+        
+       if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !direccion.trim()) {
+    msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
+    return;
+}
 
             if (document.getElementById("check-autorizacion").checked) {
                 let reg = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
@@ -744,6 +692,16 @@ function configurarEventos() {
             }
 
             const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+            const horarioOcupado = citas.some(
+            c => c.fecha === fecha && c.hora === hora
+            );
+
+            if (horarioOcupado) {
+            msg.innerHTML = `<div class="alert alert-danger">Ese horario ya está reservado. Selecciona otro.</div>`;
+            actualizarHorariosDisponibles();
+            return;
+            }
             citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, direccion, estado: "Pendiente" });
             localStorage.setItem("citas_estudio", JSON.stringify(citas));
 
@@ -767,19 +725,176 @@ function configurarEventos() {
     });
 }
 
-/* 10. NAVBAR*/
-
-// Cambia el fondo del navbar cuando el usuario hace scroll.
-function actualizarNavbar() {
+// Sección relacionada al HTML hecha por Cristopher scrollIntoView
+    function actualizarNavbar(){
     const navbar = document.getElementById("navbar-principal");
+
+
     if (!navbar) return;
 
-    if (window.scrollY > 5) {
+    if (window.scrollY > 5){
         navbar.classList.add("navbar-scroll");
     } else {
+        navbar.classList.remove("navbar-scroll");
         navbar.classList.remove("navbar-scroll");
     }
 }
 
 window.addEventListener("scroll", actualizarNavbar);
 window.addEventListener("load", actualizarNavbar);
+
+
+
+function renderizarEstadisticas() {
+    const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+    const pendientes = citas.filter(c => c.estado === "Pendiente").length;
+    const confirmadas = citas.filter(c => c.estado === "Confirmada").length;
+    const completadas = citas.filter(c => c.estado === "Completada").length;
+
+    const conteoServicios = {};
+
+    citas.forEach(cita => {
+        conteoServicios[cita.servicio] =
+            (conteoServicios[cita.servicio] || 0) + 1;
+    });
+
+    const serviciosOrdenados = Object.entries(conteoServicios)
+        .sort((a, b) => b[1] - a[1]);
+
+    return `
+        <section class="my-5 p-4 bg-white rounded-4 shadow-sm border">
+            <h3 class="fw-bold text-rose-dark mb-4">
+                Estadísticas de Citas
+            </h3>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="p-3 rounded-4 bg-light text-center">
+                        <h6 class="text-muted">Total de citas</h6>
+                        <h2 class="fw-bold">${citas.length}</h2>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="p-3 rounded-4 bg-light text-center">
+                        <h6 class="text-muted">Pendientes</h6>
+                        <h2 class="fw-bold">${pendientes}</h2>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="p-3 rounded-4 bg-light text-center">
+                        <h6 class="text-muted">Confirmadas</h6>
+                        <h2 class="fw-bold">${confirmadas}</h2>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="p-3 rounded-4 bg-light text-center">
+                        <h6 class="text-muted">Completadas</h6>
+                        <h2 class="fw-bold">${completadas}</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <h5 class="text-center">Citas por estado</h5>
+                    <div style="height: 300px;">
+                        <canvas id="graficaEstados"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-center">Servicios más solicitados</h5>
+                    <div style="height: 300px;">
+                        <canvas id="graficaServicios"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    `;
+}
+
+function inicializarGraficasEstadisticas() {
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js no está cargado.");
+        return;
+    }
+
+    const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+    const pendientes = citas.filter(c => c.estado === "Pendiente").length;
+    const confirmadas = citas.filter(c => c.estado === "Confirmada").length;
+    const completadas = citas.filter(c => c.estado === "Completada").length;
+
+    const conteoServicios = {};
+
+    citas.forEach(cita => {
+        conteoServicios[cita.servicio] =
+            (conteoServicios[cita.servicio] || 0) + 1;
+    });
+
+    const estados = document.getElementById("graficaEstados");
+    const servicios = document.getElementById("graficaServicios");
+
+    if (!estados || !servicios) return;
+
+    new Chart(estados, {
+        type: "doughnut",
+        data: {
+            labels: ["Pendientes", "Confirmadas", "Completadas"],
+            datasets: [{
+                data: [pendientes, confirmadas, completadas],
+                backgroundColor: ["#f4c95d", "#e8a0bf", "#8ecfba"],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+
+    const serviciosOrdenados = Object.entries(conteoServicios)
+        .sort((a, b) => b[1] - a[1]);
+
+    new Chart(servicios, {
+        type: "bar",
+        data: {
+            labels: serviciosOrdenados.map(s => s[0]),
+            datasets: [{
+                label: "Número de citas",
+                data: serviciosOrdenados.map(s => s[1]),
+                backgroundColor: "#e8a0bf",
+                borderColor: "#c96b95",
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
