@@ -210,10 +210,39 @@ function renderizarFormularioReserva(usr) {
                 <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
                 <input type="date" id="reserva-fecha" class="form-control" required min="${new Date().toLocaleDateString('en-CA')}" onchange="actualizarHorariosDisponibles(); consultarClimaReserva();">
                 <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                <div class="col-md-6"><label class="form-label fw-semibold">Municipio</label><input type="text" id="reserva-municipio" class="form-control" required placeholder="Ejemplo: San Salvador" onchange="consultarClimaReserva()"></div>
+                <div class="col-md-6">
+                <label class="form-label fw-semibold">Departamento</label>
+                <select id="reserva-departamento" class="form-select" required>
+                <option value="">-- Selecciona un departamento --</option>
+                <option value="Ahuachapán">Ahuachapán</option>
+                <option value="Cabañas">Cabañas</option>
+                <option value="Chalatenango">Chalatenango</option>
+                <option value="Cuscatlán">Cuscatlán</option>
+                <option value="La Libertad">La Libertad</option>
+                <option value="La Paz">La Paz</option>
+                <option value="La Unión">La Unión</option>
+                <option value="Morazán">Morazán</option>
+                <option value="San Miguel">San Miguel</option>
+                <option value="San Salvador">San Salvador</option>
+                <option value="San Vicente">San Vicente</option>
+                <option value="Santa Ana">Santa Ana</option>
+                <option value="Sonsonate">Sonsonate</option>
+                <option value="Usulután">Usulután</option>
+                </select>
+                </div>                
                 <div class="col-12"><div id="clima-reserva" class="d-none"></div></div>
-                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
-                <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion"><strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
+                <div class="col-12">
+                <label class="form-label fw-semibold">Dirección exacta en Google Maps</label>
+                <div id="google-direccion-autocomplete"></div>
+                <input type="hidden" id="reserva-direccion">
+                <input type="hidden" id="reserva-latitud">
+                <input type="hidden" id="reserva-longitud">
+                <input type="hidden" id="reserva-place-id">
+                <input type="hidden" id="reserva-maps-url">
+                <small class="text-muted">
+                Busca y selecciona tu dirección exacta de la lista de Google Maps.
+    </small>
+</div>                <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion"><strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
             <div id="reserva-mensaje" class="mt-3"></div>
@@ -327,12 +356,12 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     } else {
         html += `<div class="table-responsive"><table class="table table-hover align-middle"><thead class="bg-rose-pastel"><tr>`;
         if (esAdmin) html += `<th>Cliente</th>`;
-        html += `<th>Servicio</th><th>Fecha y Hora</th><th>Municipio</th><th>Dirección</th><th>Clima</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
+        html += `<th>Servicio</th><th>Fecha y Hora</th><th>Departamento</th><th>Dirección</th><th>Clima</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
         citas.forEach(c => {
             const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
             html += `<tr>`;
             if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
-            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td>${c.municipio || "No registrado"}</td><td><small>${c.direccion}</small></td><td><small>${c.clima ? `${c.clima.descripcion}<br>${c.clima.temperaturaMin} °C - ${c.clima.temperaturaMax} °C<br>Lluvia: ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;            
+            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td>${c.departamento || c.municipio || "No registrado"}</td><td><small>${c.direccion}</small></td><td><small>${c.clima ? `${c.clima.descripcion}<br>${c.clima.temperaturaMin} °C - ${c.clima.temperaturaMax} °C<br>Lluvia: ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;            
             if (esAdmin) {
                 html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button>`;
 
@@ -447,9 +476,8 @@ if (citas.length === 0) {
     return;
 }
 
-    let csv = "data:text/csv;charset=utf-8,ID,Cliente,Telefono,Servicio,Fecha,Hora,Municipio,Direccion,Clima,Estado\n";
-    citas.forEach(c => { const clima = c.clima ? `${c.clima.descripcion} | ${c.clima.temperaturaMin}°C-${c.clima.temperaturaMax}°C | Lluvia ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"; csv += `"${c.id}","${c.nombre}","${c.telefono}","${c.servicio}","${c.fecha}","${c.hora}","${c.municipio || ""}","${(c.direccion || "").replace(/\n/g, ' ')}","${clima}","${c.estado}"\n`; });
-    const link = document.createElement("a");
+    let csv = "data:text/csv;charset=utf-8,ID,Cliente,Telefono,Servicio,Fecha,Hora,Departamento,Direccion,Clima,Estado\n";
+    citas.forEach(c => { const clima = c.clima ? `${c.clima.descripcion} | ${c.clima.temperaturaMin}°C-${c.clima.temperaturaMax}°C | Lluvia ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"; csv += `"${c.id}","${c.nombre}","${c.telefono}","${c.servicio}","${c.fecha}","${c.hora}","${c.departamento || c.municipio || ""}","${(c.direccion || "").replace(/\n/g, ' ')}","${clima}","${c.estado}"\n`; });    const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csv));
     link.setAttribute("download", "Reporte_Citas_LashesRosesStudio.csv");
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
@@ -633,11 +661,11 @@ function configurarEventos() {
             const servicio = document.getElementById("reserva-servicio").value;
             const fecha = document.getElementById("reserva-fecha").value;
             const hora = document.getElementById("reserva-hora").value;
-            const municipio = document.getElementById("reserva-municipio").value.trim();
+            const departamento = document.getElementById("reserva-departamento").value;            
             const direccion = document.getElementById("reserva-direccion").value;
             const msg = document.getElementById("reserva-mensaje");
         
-    if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !municipio || !direccion.trim()) {        
+    if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !departamento || !direccion.trim()) {
     msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
     return;
 }
@@ -661,14 +689,14 @@ function configurarEventos() {
             actualizarHorariosDisponibles();
             return;
             }
-            citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, municipio, direccion, clima: climaReservaActual, estado: "Pendiente" });            
+            citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, departamento, direccion, clima: climaReservaActual, estado: "Pendiente" });            
             localStorage.setItem("citas_estudio", JSON.stringify(citas));
 
             e.target.reset();
 
             Swal.fire({
             title: "¡Cita agendada con éxito!",
-            html: `<strong>Servicio:</strong> ${servicio}<br><strong>Fecha:</strong> ${fecha} a las ${hora} hrs<br><strong>Municipio:</strong> ${municipio}<br><strong>Dirección:</strong> ${direccion}<br><br>Te contactaremos a través de WhatsApp para confirmar los detalles.`,
+            html: `<strong>Servicio:</strong> ${servicio}<br><strong>Fecha:</strong> ${fecha} a las ${hora} hrs<br><strong>Departamento:</strong> ${departamento}<br><strong>Dirección:</strong> ${direccion}<br><br>Te contactaremos a través de WhatsApp para confirmar los detalles.`,
             icon: "success",
             confirmButtonColor: "#d63384"
             }).then(() => {
