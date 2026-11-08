@@ -330,7 +330,8 @@ function renderizarFormularioReserva(usr) {
                 <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
                 <input type="date" id="reserva-fecha" class="form-control" required min="${new Date().toLocaleDateString('en-CA')}" onchange="actualizarHorariosDisponibles()">
                 <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
+                <div class="col-md-6"><label class="form-label fw-semibold">Municipio</label><input type="text" id="reserva-municipio" class="form-control" required placeholder="Ejemplo: San Salvador"></div>                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
+                <div class="col-12"><div id="clima-reserva" class="d-none"></div></div>
                 <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion">🔒 <strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
@@ -898,18 +899,19 @@ function inicializarGraficasEstadisticas() {
         }
     });
 }
-/*Fas2 , REACT: COMPONENTE REUTILIZABLE DE SERVICIO*/
 
-function TarjetaServicioReact({ servicio }) {
+/* FASE 2, REACT: COMPONENTE REUTILIZABLE DE SERVICIO */
+
+function TarjetaServicioReact({ servicio, onSeleccionar }) {
 
     return (
-       <div
-    className="tarjeta-servicio"
-    onClick={() => intentarReservar(servicio.nombre)}
-    style={{
-        backgroundImage: `url('${servicio.imagen}')`
-    }}
->
+        <div
+            className="tarjeta-servicio"
+            onClick={() => onSeleccionar(servicio)}
+            style={{
+                backgroundImage: `url('${servicio.imagen}')`
+            }}
+        >
 
             <div className="info-servicio">
 
@@ -930,32 +932,33 @@ function TarjetaServicioReact({ servicio }) {
         </div>
     );
 }
-/* Contenedor donde React mostrará los componentes */
-const contenedorReact = document.getElementById("react-root");
-if (contenedorReact) {
 
-      const root = ReactDOM.createRoot(contenedorReact);
 
-    root.render(
-        <SeccionServiciosReact />
-    );
-}
-function GrupoServiciosReact({ titulo, servicios }) {
+/* COMPONENTE PARA AGRUPAR LOS SERVICIOS */
+
+function GrupoServiciosReact({ titulo, servicios, onSeleccionar }) {
+
     return (
         <div className="grupo-servicios">
 
             <div className="encabezado-categoria">
+
                 <h3>{titulo}</h3>
+
                 <span className="linea-categoria"></span>
+
             </div>
 
             <div className="grid-servicios">
 
                 {servicios.map(servicio => (
+
                     <TarjetaServicioReact
                         key={servicio.id}
                         servicio={servicio}
+                        onSeleccionar={onSeleccionar}
                     />
+
                 ))}
 
             </div>
@@ -964,7 +967,11 @@ function GrupoServiciosReact({ titulo, servicios }) {
     );
 }
 
+/* SECCIÓN PRINCIPAL DE SERVICIOS EN REACT */
+
 function SeccionServiciosReact() {
+
+    const [servicioSeleccionado, setServicioSeleccionado] = React.useState(null);
 
     const pestanas = listaServicios.filter(
         servicio => servicio.categoria === "Pestañas"
@@ -978,21 +985,54 @@ function SeccionServiciosReact() {
         servicio => servicio.categoria === "Uñas"
     );
 
-return (
-    <>
-        <GrupoServiciosReact
-            titulo="Pestañas"
-            servicios={pestanas}
-        />
+    function seleccionarServicio(servicio) {
 
-        <GrupoServiciosReact
-            titulo="Cejas"
-            servicios={cejas}
-        />
-        <GrupoServiciosReact
-            titulo="Uñas"
-            servicios={unas}
-/>
-    </>
-);
+        setServicioSeleccionado(servicio);
+
+        intentarReservar(servicio.nombre);
+    }
+
+    return (
+
+        <section className="seccion-servicios">
+
+            <h2 className="titulo-servicios text-center">
+                Nuestros Servicios
+            </h2>
+
+            <GrupoServiciosReact
+                titulo="Pestañas"
+                servicios={pestanas}
+                onSeleccionar={seleccionarServicio}
+            />
+
+            <GrupoServiciosReact
+                titulo="Cejas"
+                servicios={cejas}
+                onSeleccionar={seleccionarServicio}
+            />
+
+            <GrupoServiciosReact
+                titulo="Uñas"
+                servicios={unas}
+                onSeleccionar={seleccionarServicio}
+            />
+
+        </section>
+
+    );
+}
+
+/* CONTENEDOR DONDE REACT MOSTRARÁ LOS COMPONENTES */
+
+const contenedorReact = document.getElementById("react-root");
+
+if (contenedorReact) {
+
+    const root = ReactDOM.createRoot(contenedorReact);
+
+    root.render(
+        <SeccionServiciosReact />
+    );
+
 }
