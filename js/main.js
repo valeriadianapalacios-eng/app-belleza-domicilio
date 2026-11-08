@@ -898,3 +898,102 @@ function inicializarGraficasEstadisticas() {
         }
     });
 }
+/*Fas2 , REACT: COMPONENTE REUTILIZABLE DE SERVICIO*/
+
+function TarjetaServicioReact({ servicio }) {
+
+    return (
+       <div
+    className="tarjeta-servicio"
+    onClick={() => intentarReservar(servicio.nombre)}
+    style={{
+        backgroundImage: `url('${servicio.imagen}')`
+    }}
+>
+
+            <div className="info-servicio">
+
+                <h4>
+                    {servicio.nombre}
+                </h4>
+
+                <p>
+                    {servicio.descripcion}
+                </p>
+
+                <span>
+                    ${servicio.precio.toFixed(2)}
+                </span>
+
+            </div>
+
+        </div>
+    );
+}
+/* Contenedor donde React mostrará los componentes */
+const contenedorReact = document.getElementById("react-root");
+if (contenedorReact) {
+
+      const root = ReactDOM.createRoot(contenedorReact);
+
+    root.render(
+        <SeccionServiciosReact />
+    );
+}
+function GrupoServiciosReact({ titulo, subtitulo, servicios }) {
+
+    return (
+        <div className="grupo-servicios">
+
+            <div className="encabezado-categoria">
+                <h3>{titulo}</h3>
+                <span className="linea-categoria"></span>
+            </div>
+
+            <div className="grid-servicios">
+
+                {servicios.map(servicio => (
+                    <TarjetaServicioReact
+                        key={servicio.id}
+                        servicio={servicio}
+                    />
+                ))}
+
+            </div>
+
+        </div>
+    );
+}
+
+function SeccionServiciosReact() {
+
+    const pestanas = listaServicios.filter(
+        servicio => servicio.categoria === "Pestañas"
+    );
+
+    const cejas = listaServicios.filter(
+        servicio => servicio.categoria === "Cejas"
+    );
+
+    const unas = listaServicios.filter(
+        servicio => servicio.categoria === "Uñas"
+    );
+
+return (
+    <>
+        <GrupoServiciosReact
+            titulo="Pestañas"
+            servicios={pestanas}
+        />
+
+        <GrupoServiciosReact
+            titulo="Cejas"
+            servicios={cejas}
+        />
+        <GrupoServiciosReact
+            titulo="Uñas"
+            servicios={unas}
+/>
+    </>
+);
+}
