@@ -940,8 +940,7 @@ if (contenedorReact) {
         <SeccionServiciosReact />
     );
 }
-function GrupoServiciosReact({ titulo, subtitulo, servicios }) {
-
+function GrupoServiciosReact({ titulo, servicios }) {
     return (
         <div className="grupo-servicios">
 
