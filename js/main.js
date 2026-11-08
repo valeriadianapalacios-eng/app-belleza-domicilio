@@ -56,13 +56,14 @@ function renderizarPaginaPrincipal() {
                 <button onclick="cerrarSesionCliente()" class="btn btn-outline-danger btn-sm rounded-pill">Cerrar Sesión</button>
             </div>
         `;
-        html += renderizarEstadisticas();
-        html += renderizarTablaCitas("Agenda General de Citas", true);
-        html += renderizarTablaClientesAdmin(); // Sección nueva para gestionar datos de clientas guardadas
-        app.innerHTML = html;
-        inicializarGraficasEstadisticas();
-        return;
-    }
+            html += renderizarEstadisticas();
+            html += renderizarTablaCitas("Agenda General de Citas", true);
+            html += renderizarTablaClientesAdmin(); // Sección nueva para gestionar datos de clientas guardadas
+
+            app.innerHTML = html;
+            inicializarGraficasEstadisticas();
+            return;
+            }
 
     html += `
        <section class="hero-principal">
@@ -85,8 +86,8 @@ function renderizarPaginaPrincipal() {
         </section>
     `;
 
-    html += renderizarSeccionServicios();
-
+    html += '<div id="react-servicios-root"></div>';
+    
     /*cambios hechos*/
    if (!usr) {
     html += `
@@ -155,149 +156,13 @@ function renderizarPaginaPrincipal() {
     }
 
     app.innerHTML = html;
-
+    montarServiciosReact();
     const servPendiente = sessionStorage.getItem("servicio_seleccionado");
     if (servPendiente && document.getElementById("reserva-servicio")) {
         document.getElementById("reserva-servicio").value = servPendiente;
         sessionStorage.removeItem("servicio_seleccionado");
         document.getElementById("reservas")?.scrollIntoView({ behavior: 'smooth' });
     }
-}
-
-function renderizarSeccionServicios() { /*Cambios hechos */
-
-    const pestanas = listaServicios.filter(s => s.categoria === "Pestañas");
-    const cejas = listaServicios.filter(s => s.categoria === "Cejas");
-    const unas = listaServicios.filter(s => s.categoria === "Uñas");
-
-    let html = `
-        <section id="servicios" class="seccion-servicios">
-
-            <!-- TEXTO SUPERIOR -->
-            <div class="servicios-etiqueta">
-                <span></span>
-                <p>Belleza a tu alcance</p>
-                <span></span>
-            </div>
-
-            <!-- TÍTULO -->
-            <h2 class="titulo-servicios text-center">
-                Nuestros Servicios
-            </h2>
-
-            <!-- DESCRIPCIÓN -->
-            <p class="subtitulo-servicios">
-                Cuidamos cada detalle para que te sientas siempre tu mejor versión.
-            </p>
-
-
-            <!-- PESTAÑAS Y CEJAS -->
-            <div class="bloque-servicios">
-
-                <!-- PESTAÑAS -->
-                <div class="grupo-servicios">
-
-                    <div class="encabezado-categoria">
-                        <h3>Pestañas</h3>
-                        <span class="linea-categoria"></span>
-                        <p>MÁS MIRADA, MÁS CONFIANZA</p>
-                    </div>
-
-                    <div class="grid-servicios">
-    `;
-
-    pestanas.forEach(s => {
-        html += `
-            <div class="tarjeta-servicio"
-                 style="background-image: url('${s.imagen}')"
-                 onclick="intentarReservar('${s.nombre}')">
-
-                <div class="info-servicio">
-                    <h4>${s.nombre}</h4>
-                    <p>${s.descripcion}</p>
-                    <span>$${s.precio.toFixed(2)}</span>
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `
-                    </div>
-                </div>
-
-
-                <!-- CEJAS -->
-                <div class="grupo-servicios">
-
-                    <div class="encabezado-categoria">
-                        <h3>Cejas</h3>
-                        <span class="linea-categoria"></span>
-                        <p>DEFINE TU BELLEZA NATURAL</p>
-                    </div>
-
-                    <div class="grid-servicios">
-    `;
-
-    cejas.forEach(s => {
-        html += `
-            <div class="tarjeta-servicio"
-                 style="background-image: url('${s.imagen}')"
-                 onclick="intentarReservar('${s.nombre}')">
-
-                <div class="info-servicio">
-                    <h4>${s.nombre}</h4>
-                    <p>${s.descripcion}</p>
-                    <span>$${s.precio.toFixed(2)}</span>
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- UÑAS -->
-            <div class="seccion-unas">
-
-                <div class="encabezado-categoria">
-                    <h3>Uñas</h3>
-                    <span class="linea-categoria"></span>
-                    <p>TU ESTILO EN CADA DETALLE</p>
-                </div>
-
-                <div class="grid-unas">
-    `;
-
-    unas.forEach(s => {
-        html += `
-            <div class="tarjeta-servicio"
-                 style="background-image: url('${s.imagen}')"
-                 onclick="intentarReservar('${s.nombre}')">
-
-                <div class="info-servicio">
-                    <h4>${s.nombre}</h4>
-                    <p>${s.descripcion}</p>
-                    <span>$${s.precio.toFixed(2)}</span>
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `
-                </div>
-            </div>
-
-        </section>
-    `;
-
-    return html;
 }
 function intentarReservar(nombreServicio) {
     sessionStorage.setItem("servicio_seleccionado", nombreServicio);
@@ -328,11 +193,12 @@ function renderizarFormularioReserva(usr) {
                 <div class="col-md-6"><label class="form-label fw-semibold">Nombre del Cliente</label><input type="text" id="reserva-nombre" class="form-control" required value="${usr.nombre}" readonly></div>
                 <div class="col-md-6"><label class="form-label fw-semibold">Número Telefónico</label><input type="tel" id="reserva-telefono" class="form-control" required value="${usr.telefono}" readonly></div>
                 <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
-                <input type="date" id="reserva-fecha" class="form-control" required min="${new Date().toLocaleDateString('en-CA')}" onchange="actualizarHorariosDisponibles()">
+                <input type="date" id="reserva-fecha" class="form-control" required min="${new Date().toLocaleDateString('en-CA')}" onchange="actualizarHorariosDisponibles(); consultarClimaReserva();">
                 <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                <div class="col-md-6"><label class="form-label fw-semibold">Municipio</label><input type="text" id="reserva-municipio" class="form-control" required placeholder="Ejemplo: San Salvador"></div>                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
+                <div class="col-md-6"><label class="form-label fw-semibold">Municipio</label><input type="text" id="reserva-municipio" class="form-control" required placeholder="Ejemplo: San Salvador" onchange="consultarClimaReserva()"></div>
                 <div class="col-12"><div id="clima-reserva" class="d-none"></div></div>
-                <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion">🔒 <strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
+                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
+                <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion"><strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
             <div id="reserva-mensaje" class="mt-3"></div>
@@ -354,6 +220,84 @@ function actualizarHorariosDisponibles() {
     if (libres.length === 0) { sH.innerHTML = `<option value="">No hay horarios disponibles este día</option>`; return; }
     sH.innerHTML = `<option value="">-- Selecciona una hora --</option>` + libres.map(h => `<option value="${h}">${h} hrs</option>`).join("");
 }
+function obtenerDescripcionClima(codigo) {
+    const codigos = { 0: "Despejado", 1: "Mayormente despejado", 2: "Parcialmente nublado", 3: "Nublado", 45: "Neblina", 48: "Neblina", 51: "Llovizna ligera", 53: "Llovizna moderada", 55: "Llovizna intensa", 61: "Lluvia ligera", 63: "Lluvia moderada", 65: "Lluvia intensa", 80: "Chubascos ligeros", 81: "Chubascos moderados", 82: "Chubascos fuertes", 95: "Tormenta eléctrica", 96: "Tormenta con granizo", 99: "Tormenta fuerte con granizo" };
+
+    return codigos[codigo] || "Condición variable";
+}
+let climaReservaActual = null;
+async function consultarClimaReserva() {
+
+    const municipio = document.getElementById("reserva-municipio")?.value.trim();
+    const fecha = document.getElementById("reserva-fecha")?.value;
+    const contenedor = document.getElementById("clima-reserva");
+
+    climaReservaActual = null;
+
+    if (!municipio || !fecha || !contenedor) return;
+
+    contenedor.className = "alert alert-info";
+    contenedor.innerHTML = "Consultando clima...";
+
+    try {
+
+        const urlUbicacion = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(municipio)}&count=1&language=es&format=json&countryCode=SV`;
+
+        const respuestaUbicacion = await fetch(urlUbicacion);
+
+        if (!respuestaUbicacion.ok) {
+            throw new Error("Error al consultar ubicación");
+        }
+
+        const datosUbicacion = await respuestaUbicacion.json();
+
+        if (!datosUbicacion.results || datosUbicacion.results.length === 0) {
+            contenedor.className = "alert alert-warning";
+            contenedor.innerHTML = "No se encontró ese municipio en El Salvador.";
+            return;
+        }
+
+        const ubicacion = datosUbicacion.results[0];
+
+        const urlClima = `https://api.open-meteo.com/v1/forecast?latitude=${ubicacion.latitude}&longitude=${ubicacion.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=16`;
+
+        const respuestaClima = await fetch(urlClima);
+
+        if (!respuestaClima.ok) {
+            throw new Error("Error al consultar clima");
+        }
+
+        const datosClima = await respuestaClima.json();
+
+        const indice = datosClima.daily.time.indexOf(fecha);
+
+        if (indice === -1) {
+            contenedor.className = "alert alert-warning";
+            contenedor.innerHTML = "El pronóstico todavía no está disponible para esta fecha.";
+            return;
+        }
+
+        const codigo = datosClima.daily.weather_code[indice];
+        const temperaturaMax = datosClima.daily.temperature_2m_max[indice];
+        const temperaturaMin = datosClima.daily.temperature_2m_min[indice];
+        const lluvia = datosClima.daily.precipitation_probability_max[indice];
+
+        const descripcion = obtenerDescripcionClima(codigo);
+        
+        climaReservaActual = { descripcion, temperaturaMax, temperaturaMin, lluvia, ubicacion: ubicacion.name };
+
+        contenedor.className = "alert alert-light border";
+
+        contenedor.innerHTML = `<strong>Clima previsto en ${ubicacion.name}</strong><br>${descripcion}<br>Temperatura: ${temperaturaMin} °C - ${temperaturaMax} °C<br>Probabilidad de lluvia: ${lluvia ?? 0}%`;
+
+    } catch (error) {
+
+        console.error(error);
+
+        contenedor.className = "alert alert-danger";
+        contenedor.innerHTML = "No fue posible consultar el clima en este momento.";
+    }
+}
 
 function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
@@ -368,14 +312,12 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
     } else {
         html += `<div class="table-responsive"><table class="table table-hover align-middle"><thead class="bg-rose-pastel"><tr>`;
         if (esAdmin) html += `<th>Cliente</th>`;
-        html += `<th>Servicio</th><th>Fecha y Hora</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
-
+        html += `<th>Servicio</th><th>Fecha y Hora</th><th>Municipio</th><th>Dirección</th><th>Clima</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
         citas.forEach(c => {
             const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
             html += `<tr>`;
             if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
-            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td><small>${c.direccion}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;
-            
+            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td>${c.municipio || "No registrado"}</td><td><small>${c.direccion}</small></td><td><small>${c.clima ? `${c.clima.descripcion}<br>${c.clima.temperaturaMin} °C - ${c.clima.temperaturaMax} °C<br>Lluvia: ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;            
             if (esAdmin) {
                 html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button>`;
 
@@ -450,7 +392,7 @@ function renderizarTablaClientesAdmin() {
 
 function eliminarClienteGuardado(telefono) {
     Swal.fire({
-        title: "¿?",
+        title: "¿Eliminar datos de la clienta?",
         text: `¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`,
         icon: "warning",
         showCancelButton: true,
@@ -490,8 +432,8 @@ if (citas.length === 0) {
     return;
 }
 
-    let csv = "data:text/csv;charset=utf-8,ID,Cliente,Telefono,Servicio,Fecha,Hora,Direccion,Estado\n";
-    citas.forEach(c => { csv += `"${c.id}","${c.nombre}","${c.telefono}","${c.servicio}","${c.fecha}","${c.hora}","${c.direccion.replace(/\n/g, ' ')}","${c.estado}"\n`; });
+    let csv = "data:text/csv;charset=utf-8,ID,Cliente,Telefono,Servicio,Fecha,Hora,Municipio,Direccion,Clima,Estado\n";
+    citas.forEach(c => { const clima = c.clima ? `${c.clima.descripcion} | ${c.clima.temperaturaMin}°C-${c.clima.temperaturaMax}°C | Lluvia ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"; csv += `"${c.id}","${c.nombre}","${c.telefono}","${c.servicio}","${c.fecha}","${c.hora}","${c.municipio || ""}","${(c.direccion || "").replace(/\n/g, ' ')}","${clima}","${c.estado}"\n`; });
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csv));
     link.setAttribute("download", "Reporte_Citas_LashesRosesStudio.csv");
@@ -676,10 +618,11 @@ function configurarEventos() {
             const servicio = document.getElementById("reserva-servicio").value;
             const fecha = document.getElementById("reserva-fecha").value;
             const hora = document.getElementById("reserva-hora").value;
+            const municipio = document.getElementById("reserva-municipio").value.trim();
             const direccion = document.getElementById("reserva-direccion").value;
             const msg = document.getElementById("reserva-mensaje");
         
-       if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !direccion.trim()) {
+    if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !municipio || !direccion.trim()) {        
     msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
     return;
 }
@@ -703,25 +646,19 @@ function configurarEventos() {
             actualizarHorariosDisponibles();
             return;
             }
-            citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, direccion, estado: "Pendiente" });
+            citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, municipio, direccion, clima: climaReservaActual, estado: "Pendiente" });            
             localStorage.setItem("citas_estudio", JSON.stringify(citas));
 
-            msg.innerHTML = `
-                <div class="card border-0 shadow-sm rounded-4 bg-rose-pastel p-4 text-center my-3">
-                    <h4 class="fw-bold text-rose-dark mb-1">SU INFORMACIÓN</h4>
-                    <p class="text-muted small mb-3">Datos de su cita reservada</p>
-                    <ul class="list-group list-group-flush rounded-3 overflow-hidden mb-3">
-                        <li class="list-group-item bg-white py-2"><strong>Cliente:</strong> ${nombre}</li>
-                        <li class="list-group-item bg-white py-2"><strong>Teléfono:</strong> ${telefono}</li>
-                        <li class="list-group-item bg-white py-2"><strong>Servicio:</strong> ${servicio}</li>
-                        <li class="list-group-item bg-white py-2"><strong>Fecha y Hora:</strong> ${fecha} a las ${hora} hrs</li>
-                        <li class="list-group-item bg-white py-2"><strong>Dirección:</strong> ${direccion}</li>
-                    </ul>
-                    <div class="alert alert-success py-2 mb-0">¡Cita agendada con éxito! <strong>Te contactaremos a través de WhatsApp</strong> para confirmar los detalles de tu visita a domicilio.</div>
-                </div>
-            `;
             e.target.reset();
+
+            Swal.fire({
+            title: "¡Cita agendada con éxito!",
+            html: `<strong>Servicio:</strong> ${servicio}<br><strong>Fecha:</strong> ${fecha} a las ${hora} hrs<br><strong>Municipio:</strong> ${municipio}<br><strong>Dirección:</strong> ${direccion}<br><br>Te contactaremos a través de WhatsApp para confirmar los detalles.`,
+            icon: "success",
+            confirmButtonColor: "#d63384"
+            }).then(() => {
             renderizarPaginaPrincipal();
+            });        
         }
     });
 }
@@ -736,7 +673,6 @@ function configurarEventos() {
     if (window.scrollY > 5){
         navbar.classList.add("navbar-scroll");
     } else {
-        navbar.classList.remove("navbar-scroll");
         navbar.classList.remove("navbar-scroll");
     }
 }
@@ -936,10 +872,10 @@ function TarjetaServicioReact({ servicio, onSeleccionar }) {
 
 /* COMPONENTE PARA AGRUPAR LOS SERVICIOS */
 
-function GrupoServiciosReact({ titulo, servicios, onSeleccionar }) {
+function GrupoServiciosReact({ titulo, servicios, onSeleccionar, claseGrupo = "grupo-servicios", claseGrid = "grid-servicios" }) {
 
     return (
-        <div className="grupo-servicios">
+        <div className={claseGrupo}>
 
             <div className="encabezado-categoria">
 
@@ -949,7 +885,7 @@ function GrupoServiciosReact({ titulo, servicios, onSeleccionar }) {
 
             </div>
 
-            <div className="grid-servicios">
+            <div className={claseGrid}>
 
                 {servicios.map(servicio => (
 
@@ -991,14 +927,20 @@ function SeccionServiciosReact() {
 
         intentarReservar(servicio.nombre);
     }
-
     return (
+    <section id="servicios" className="seccion-servicios">
 
-        <section className="seccion-servicios">
+        <h2 className="titulo-servicios text-center">
+            Nuestros Servicios
+        </h2>
 
-            <h2 className="titulo-servicios text-center">
-                Nuestros Servicios
-            </h2>
+        <p className="visually-hidden" aria-live="polite">
+        {servicioSeleccionado
+        ? `Servicio seleccionado: ${servicioSeleccionado.nombre}`
+        : "Ningún servicio seleccionado"}
+        </p>
+
+        <div className="bloque-servicios">
 
             <GrupoServiciosReact
                 titulo="Pestañas"
@@ -1012,27 +954,27 @@ function SeccionServiciosReact() {
                 onSeleccionar={seleccionarServicio}
             />
 
-            <GrupoServiciosReact
-                titulo="Uñas"
-                servicios={unas}
-                onSeleccionar={seleccionarServicio}
-            />
+        </div>
 
-        </section>
+        <GrupoServiciosReact
+            titulo="Uñas"
+            servicios={unas}
+            onSeleccionar={seleccionarServicio}
+            claseGrupo="seccion-unas"
+            claseGrid="grid-unas"
+        />
 
-    );
+    </section>
+);
+ 
 }
 
 /* CONTENEDOR DONDE REACT MOSTRARÁ LOS COMPONENTES */
+function montarServiciosReact() {
+    const contenedor = document.getElementById("react-servicios-root");
+    if (!contenedor) return;
 
-const contenedorReact = document.getElementById("react-root");
-
-if (contenedorReact) {
-
-    const root = ReactDOM.createRoot(contenedorReact);
-
-    root.render(
-        <SeccionServiciosReact />
-    );
-
+    const root = ReactDOM.createRoot(contenedor);
+    root.render(<SeccionServiciosReact />);
 }
+
