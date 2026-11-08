@@ -328,16 +328,20 @@ async function buscarDireccionEnMapa() {
     const busqueda = departamento ? `${direccion}, ${departamento}, El Salvador` : `${direccion}, El Salvador`;
 
     try {
-        const respuesta = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=sv&q=${encodeURIComponent(busqueda)}`);
+        const respuesta = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(busqueda)}&limit=1&countrycode=SV`);
+
+        if (!respuesta.ok) {
+        throw new Error(`Error HTTP: ${respuesta.status}`);
+}
+
         const datos = await respuesta.json();
 
-        if (!datos.length) {
-            Swal.fire("Dirección no encontrada", "Intenta escribir una dirección más detallada.", "warning");
-            return;
+        if (!datos.features || datos.features.length === 0) {
+        Swal.fire("Dirección no encontrada", "Intenta escribir una dirección más detallada.", "warning");
+        return;
         }
 
-        const latitud = datos[0].lat;
-        const longitud = datos[0].lon;
+        const [longitud, latitud] = datos.features[0].geometry.coordinates;
 
         document.getElementById("reserva-latitud").value = latitud;
         document.getElementById("reserva-longitud").value = longitud;
