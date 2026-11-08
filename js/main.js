@@ -10,11 +10,17 @@ const listaServicios = [
 
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+function iniciarAplicacion() {
     inicializarSesion();
     renderizarPaginaPrincipal();
     configurarEventos();
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", iniciarAplicacion);
+} else {
+    iniciarAplicacion();
+}
 
 function obtenerUsuario() {
     return JSON.parse(localStorage.getItem("usuario_activo"));
