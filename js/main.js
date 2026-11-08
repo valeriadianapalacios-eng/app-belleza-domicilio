@@ -163,6 +163,7 @@ function renderizarPaginaPrincipal() {
 
     app.innerHTML = html;
     montarServiciosReact();
+    inicializarMapaReserva();
 
     const servPendiente = sessionStorage.getItem("servicio_seleccionado");
 
@@ -232,22 +233,84 @@ function renderizarFormularioReserva(usr) {
                 </div>                
                 <div class="col-12"><div id="clima-reserva" class="d-none"></div></div>
                 <div class="col-12">
-                <label class="form-label fw-semibold">Dirección exacta en Google Maps</label>
-                <div id="google-direccion-autocomplete"></div>
+                <label class="form-label fw-semibold">Selecciona tu ubicación exacta en el mapa</label>               
+                <div id="mapa-reserva" style="height: 350px; width: 100%; border-radius: 12px;"></div>                
                 <input type="hidden" id="reserva-direccion">
                 <input type="hidden" id="reserva-latitud">
                 <input type="hidden" id="reserva-longitud">
                 <input type="hidden" id="reserva-place-id">
                 <input type="hidden" id="reserva-maps-url">
                 <small class="text-muted">
-                Busca y selecciona tu dirección exacta de la lista de Google Maps.
-    </small>
+                Haz clic en el mapa para marcar la ubicación exacta de tu domicilio.    
+                </small>
 </div>                <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion"><strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
                 <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
             </form>
             <div id="reserva-mensaje" class="mt-3"></div>
         </section>
     `;
+}
+
+let mapaReserva = null;
+let marcadorReserva = null;
+
+function inicializarMapaReserva() {
+
+    const contenedor = document.getElementById("mapa-reserva");
+
+    if (!contenedor || typeof L === "undefined") return;
+
+    if (mapaReserva) {
+        mapaReserva.remove();
+        mapaReserva = null;
+        marcadorReserva = null;
+    }
+
+    mapaReserva = L.map("mapa-reserva").setView(
+        [13.7942, -88.8965],
+        8
+    );
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapaReserva);
+
+    mapaReserva.on("click", async function (e) {
+    const latitud = e.latlng.lat;
+    const longitud = e.latlng.lng;
+
+    if (marcadorReserva) {
+        marcadorReserva.setLatLng([latitud, longitud]);
+    } else {
+        marcadorReserva = L.marker([latitud, longitud]).addTo(mapaReserva);
+    }
+
+    document.getElementById("reserva-latitud").value = latitud;
+    document.getElementById("reserva-longitud").value = longitud;
+
+        try {
+    const respuesta = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitud}&lon=${longitud}&accept-language=es`
+    );
+
+    const datos = await respuesta.json();
+
+    const direccion = datos.display_name || `${latitud}, ${longitud}`;
+
+    document.getElementById("reserva-direccion").value = direccion;
+
+    marcadorReserva
+        .bindPopup(`<strong>Ubicación seleccionada</strong><br>${direccion}`)
+        .openPopup();
+
+} catch (error) {
+    console.error("No se pudo obtener la dirección:", error);
+
+    document.getElementById("reserva-direccion").value =
+        `${latitud}, ${longitud}`;
+}
+});
 }
 
 function actualizarHorariosDisponibles() {
@@ -269,42 +332,24 @@ function obtenerDescripcionClima(codigo) {
 
     return codigos[codigo] || "Condición variable";
 }
-let climaReservaActual = null;
-async function consultarClimaReserva() {
+        let climaReservaActual = null;
+        async function consultarClimaReserva() {
 
-    const municipio = document.getElementById("reserva-municipio")?.value.trim();
-    const fecha = document.getElementById("reserva-fecha")?.value;
-    const contenedor = document.getElementById("clima-reserva");
+        const latitud = document.getElementById("reserva-latitud")?.value;
+        const longitud = document.getElementById("reserva-longitud")?.value;
+        const direccion = document.getElementById("reserva-direccion")?.value;
+        const fecha = document.getElementById("reserva-fecha")?.value;
+        const contenedor = document.getElementById("clima-reserva");
 
-    climaReservaActual = null;
+        climaReservaActual = null;
 
-    if (!municipio || !fecha || !contenedor) return;
+        if (!latitud || !longitud || !fecha || !contenedor) return;
 
-    contenedor.className = "alert alert-info";
-    contenedor.innerHTML = "Consultando clima...";
+        contenedor.className = "alert alert-info";
+        contenedor.innerHTML = "Consultando clima...";
 
     try {
-
-        const urlUbicacion = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(municipio)}&count=1&language=es&format=json&countryCode=SV`;
-
-        const respuestaUbicacion = await fetch(urlUbicacion);
-
-        if (!respuestaUbicacion.ok) {
-            throw new Error("Error al consultar ubicación");
-        }
-
-        const datosUbicacion = await respuestaUbicacion.json();
-
-        if (!datosUbicacion.results || datosUbicacion.results.length === 0) {
-            contenedor.className = "alert alert-warning";
-            contenedor.innerHTML = "No se encontró ese municipio en El Salvador.";
-            return;
-        }
-
-        const ubicacion = datosUbicacion.results[0];
-
-        const urlClima = `https://api.open-meteo.com/v1/forecast?latitude=${ubicacion.latitude}&longitude=${ubicacion.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=16`;
-
+        const urlClima = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitud)}&longitude=${encodeURIComponent(longitud)}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=16`;
         const respuestaClima = await fetch(urlClima);
 
         if (!respuestaClima.ok) {
@@ -328,12 +373,11 @@ async function consultarClimaReserva() {
 
         const descripcion = obtenerDescripcionClima(codigo);
         
-        climaReservaActual = { descripcion, temperaturaMax, temperaturaMin, lluvia, ubicacion: ubicacion.name };
-
+        climaReservaActual = {descripcion, temperaturaMax, temperaturaMin, lluvia,ubicacion: direccion || "Ubicación seleccionada"
+};
         contenedor.className = "alert alert-light border";
 
-        contenedor.innerHTML = `<strong>Clima previsto en ${ubicacion.name}</strong><br>${descripcion}<br>Temperatura: ${temperaturaMin} °C - ${temperaturaMax} °C<br>Probabilidad de lluvia: ${lluvia ?? 0}%`;
-
+contenedor.innerHTML = `<strong>Clima previsto para la ubicación seleccionada</strong><br>${descripcion}<br>Temperatura: ${temperaturaMin} °C - ${temperaturaMax} °C<br>Probabilidad de lluvia: ${lluvia ?? 0}%`;
     } catch (error) {
 
         console.error(error);
@@ -361,7 +405,7 @@ function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
             const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
             html += `<tr>`;
             if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
-            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td>${c.departamento || c.municipio || "No registrado"}</td><td><small>${c.direccion}</small></td><td><small>${c.clima ? `${c.clima.descripcion}<br>${c.clima.temperaturaMin} °C - ${c.clima.temperaturaMax} °C<br>Lluvia: ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;            
+            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td>${c.departamento || c.municipio || "No registrado"}</td><td><small>${c.direccion}</small>${c.mapsUrl ? '<br><a href="' + c.mapsUrl + '" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm mt-2">Ver en Google Maps</a>' : ""}</td><td><small>${c.clima ? `${c.clima.descripcion}<br>${c.clima.temperaturaMin} °C - ${c.clima.temperaturaMax} °C<br>Lluvia: ${c.clima.lluvia ?? 0}%` : "Sin pronóstico"}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;            
             if (esAdmin) {
                 html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button>`;
 
@@ -661,13 +705,15 @@ function configurarEventos() {
             const servicio = document.getElementById("reserva-servicio").value;
             const fecha = document.getElementById("reserva-fecha").value;
             const hora = document.getElementById("reserva-hora").value;
-            const departamento = document.getElementById("reserva-departamento").value;            
+            const departamento = document.getElementById("reserva-departamento").value;
             const direccion = document.getElementById("reserva-direccion").value;
+            const latitud = document.getElementById("reserva-latitud").value;
+            const longitud = document.getElementById("reserva-longitud").value;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`;
             const msg = document.getElementById("reserva-mensaje");
-        
-    if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !departamento || !direccion.trim()) {
-    msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
-    return;
+            if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !departamento || !direccion.trim() || !latitud || !longitud) {        
+            msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
+            return;
 }
 
             if (document.getElementById("check-autorizacion").checked) {
@@ -689,8 +735,8 @@ function configurarEventos() {
             actualizarHorariosDisponibles();
             return;
             }
-            citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, departamento, direccion, clima: climaReservaActual, estado: "Pendiente" });            
-            localStorage.setItem("citas_estudio", JSON.stringify(citas));
+                citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, departamento, direccion, latitud, longitud, mapsUrl, clima: climaReservaActual, estado: "Pendiente" });
+                localStorage.setItem("citas_estudio", JSON.stringify(citas));
 
             e.target.reset();
 
