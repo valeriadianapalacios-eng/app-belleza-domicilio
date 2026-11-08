@@ -163,12 +163,21 @@ function renderizarPaginaPrincipal() {
 
     app.innerHTML = html;
     montarServiciosReact();
+
     const servPendiente = sessionStorage.getItem("servicio_seleccionado");
+
     if (servPendiente && document.getElementById("reserva-servicio")) {
-        document.getElementById("reserva-servicio").value = servPendiente;
-        sessionStorage.removeItem("servicio_seleccionado");
-        document.getElementById("reservas")?.scrollIntoView({ behavior: 'smooth' });
-    }
+
+    document.getElementById("reserva-servicio").value = servPendiente;
+    sessionStorage.removeItem("servicio_seleccionado");
+
+    setTimeout(() => {
+        document.getElementById("reservas")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }, 100);
+}
 }
 function intentarReservar(nombreServicio) {
     sessionStorage.setItem("servicio_seleccionado", nombreServicio);
@@ -186,8 +195,8 @@ function intentarReservar(nombreServicio) {
 } else {
     renderizarPaginaPrincipal();
 }
-
 }
+
 
 function renderizarFormularioReserva(usr) {
     let opts = listaServicios.map(s => `<option value="${s.nombre}">${s.nombre} - $${s.precio.toFixed(2)}</option>`).join("");
@@ -847,13 +856,17 @@ function inicializarGraficasEstadisticas() {
 function TarjetaServicioReact({ servicio, onSeleccionar }) {
 
     return (
-        <div
+            <div
             className="tarjeta-servicio"
-            onClick={() => onSeleccionar(servicio)}
-            style={{
-                backgroundImage: `url('${servicio.imagen}')`
+            onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onSeleccionar(servicio);
             }}
-        >
+            style={{
+            backgroundImage: `url('${servicio.imagen}')`
+            }}
+>
 
             <div className="info-servicio">
 
