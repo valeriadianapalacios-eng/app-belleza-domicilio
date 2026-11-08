@@ -230,12 +230,17 @@ function renderizarFormularioReserva(usr) {
                 <option value="Sonsonate">Sonsonate</option>
                 <option value="Usulután">Usulután</option>
                 </select>
-                </div>                
+                </div>   
+                
                 <div class="col-12"><div id="clima-reserva" class="d-none"></div></div>
                 <div class="col-12">
-                <label class="form-label fw-semibold">Selecciona tu ubicación exacta en el mapa</label>               
-                <div id="mapa-reserva" style="height: 350px; width: 100%; border-radius: 12px;"></div>                
-                <input type="hidden" id="reserva-direccion">
+                <label class="form-label fw-semibold">Dirección exacta del domicilio</label>
+                <div class="input-group mb-2">
+                <input type="text" id="reserva-direccion" class="form-control" placeholder="Escribe tu dirección exacta">
+                <button type="button" class="btn btn-outline-secondary" onclick="buscarDireccionEnMapa()">Buscar en mapa</button>
+                </div>
+                <div id="mapa-reserva" style="height: 350px; width: 100%; border-radius: 12px;"></div>
+                              
                 <input type="hidden" id="reserva-latitud">
                 <input type="hidden" id="reserva-longitud">
                 <input type="hidden" id="reserva-place-id">
@@ -304,13 +309,55 @@ function inicializarMapaReserva() {
         .bindPopup(`<strong>Ubicación seleccionada</strong><br>${direccion}`)
         .openPopup();
 
-} catch (error) {
-    console.error("No se pudo obtener la dirección:", error);
+       } catch (error) {
+        console.error("No se pudo obtener la dirección:", error);
 
-    document.getElementById("reserva-direccion").value =
-        `${latitud}, ${longitud}`;
-}
+        document.getElementById("reserva-direccion").value =
+            `${latitud}, ${longitud}`;
+    }
+
+    consultarClimaReserva();
 });
+}
+async function buscarDireccionEnMapa() {
+    const direccion = document.getElementById("reserva-direccion").value.trim();
+    const departamento = document.getElementById("reserva-departamento").value;
+
+    if (!direccion) return;
+
+    const busqueda = departamento ? `${direccion}, ${departamento}, El Salvador` : `${direccion}, El Salvador`;
+
+    try {
+        const respuesta = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=sv&q=${encodeURIComponent(busqueda)}`);
+        const datos = await respuesta.json();
+
+        if (!datos.length) {
+            Swal.fire("Dirección no encontrada", "Intenta escribir una dirección más detallada.", "warning");
+            return;
+        }
+
+        const latitud = datos[0].lat;
+        const longitud = datos[0].lon;
+
+        document.getElementById("reserva-latitud").value = latitud;
+        document.getElementById("reserva-longitud").value = longitud;
+
+        mapaReserva.setView([latitud, longitud], 17);
+
+        if (marcadorReserva) {
+            marcadorReserva.setLatLng([latitud, longitud]);
+        } else {
+            marcadorReserva = L.marker([latitud, longitud]).addTo(mapaReserva);
+        }
+
+        marcadorReserva.bindPopup(`<strong>Ubicación encontrada</strong><br>${direccion}`).openPopup();
+
+        consultarClimaReserva();
+
+    } catch (error) {
+        console.error(error);
+        Swal.fire("Error", "No fue posible buscar la dirección en este momento.", "error");
+    }
 }
 
 function actualizarHorariosDisponibles() {
