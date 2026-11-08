@@ -337,10 +337,23 @@ async function buscarDireccionEnMapa() {
         const datos = await respuesta.json();
 
         if (!datos.features || datos.features.length === 0) {
-        Swal.fire("Dirección no encontrada", "Intenta escribir una dirección más detallada.", "warning");
-        return;
+        Swal.fire({
+        title: "Dirección no encontrada",
+        text: "No pudimos ubicarla en el mapa. Puedes guardar la dirección escrita de todas formas.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Guardar igual",
+        cancelButtonText: "Intentar otra dirección",
+        confirmButtonColor: "#d63384"
+                }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            document.getElementById("reserva-latitud").value = "";
+            document.getElementById("reserva-longitud").value = "";
         }
+    });
 
+    return;
+}
         const [longitud, latitud] = datos.features[0].geometry.coordinates;
 
         document.getElementById("reserva-latitud").value = latitud;
@@ -359,9 +372,23 @@ async function buscarDireccionEnMapa() {
         consultarClimaReserva();
 
     } catch (error) {
-        console.error(error);
-        Swal.fire("Error", "No fue posible buscar la dirección en este momento.", "error");
-    }
+    console.error(error);
+
+    Swal.fire({
+        title: "No se pudo buscar la dirección",
+        text: "Puedes guardar la dirección escrita de todas formas.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Guardar igual",
+        cancelButtonText: "Intentar otra dirección",
+        confirmButtonColor: "#d63384"
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            document.getElementById("reserva-latitud").value = "";
+            document.getElementById("reserva-longitud").value = "";
+        }
+    });
+}
 }
 
 function actualizarHorariosDisponibles() {
@@ -760,9 +787,9 @@ function configurarEventos() {
             const direccion = document.getElementById("reserva-direccion").value;
             const latitud = document.getElementById("reserva-latitud").value;
             const longitud = document.getElementById("reserva-longitud").value;
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`;
-            const msg = document.getElementById("reserva-mensaje");
-            if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !departamento || !direccion.trim() || !latitud || !longitud) {        
+            const mapsUrl = latitud && longitud
+            ? `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`: ""; const msg = document.getElementById("reserva-mensaje");
+            if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !departamento || !direccion.trim()) {            
             msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
             return;
 }
