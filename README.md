@@ -14,7 +14,7 @@ Sistema de gestión y citas de belleza a domicilio.
 -  https://drive.google.com/file/d/1lUcz6N9_xTSdey-ET5kgdogoFT_WVRia/view?usp=sharing
 
 - ENLACE DEL DOCUMENTO FASE 2:
--  https://drive.google.com/file/d/1SZ_Gb63PTWvcaFjxaRbTSFDvhbWesEt3/view?usp=sharing](https://drive.google.com/file/d/1Vo9J8vXk6H1WRGwirgTAd81ciqvmlVdL/view?usp=sharing
+-  https://drive.google.com/file/d/1Vo9J8vXk6H1WRGwirgTAd81ciqvmlVdL/view?usp=sharing
 
 ## Integrantes
 * Carlos Rodrigo Hernández Guardado (Carnet: HG262490)
