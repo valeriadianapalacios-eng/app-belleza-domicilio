@@ -19,28 +19,79 @@
     <!-- Navegación Superior -->
     <nav id="navbar-principal" class="navbar navbar-expand-lg fixed-top">
 
-        <div class="container">
-            <div class="d-flex align-items-center gap-4">
-                <a href="#servicios" class="nav-link">Nuestros Servicios</a>
-                <a href="#como-agendar" class="nav-link">Cómo Agendar</a>
-            </div>  
+    <div class="container position-relative">
 
+        <a
+            class="navbar-brand navbar-logo"
+            href="#"
+            aria-label="Inicio de Lashes Rose's Studio"
+        >
+            <img
+                src="img/STUDIO.png"
+                alt="Logo de Lashes Rose's Studio"
+            >
+        </a>
 
-            <a class="navbar-brand navbar-logo" href="#">
-            <img src="img/STUDIO.png" alt="Logo de Lashes Rose's Studio">            </a>
-               
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContenido"
+            aria-controls="navbarContenido"
+            aria-expanded="false"
+            aria-label="Abrir menú de navegación"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
+        <div
+            class="collapse navbar-collapse"
+            id="navbarContenido"
+        >
 
+            <div class="navbar-nav gap-lg-4">
 
-            <div class="d-flex align-items-center">
+                <a href="#servicios" class="nav-link">
+                    Nuestros Servicios
+                </a>
 
-                <span id="usuario-sesion" class="fw-semibold text-secondary me-3">Invitado</span>
+                <a href="#como-agendar" class="nav-link">
+                    Cómo Agendar
+                </a>
 
-                <button id="btn-login-modal" class="btn btn-outline-rose rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">Ingresar</button>
-
-                <button id="btn-logout" class="btn btn-danger rounded-pill d-none">Cerrar Sesión</button>
             </div>
+
+            <div class="d-flex align-items-center gap-2 ms-lg-auto navbar-sesion">
+
+                <span
+                    id="usuario-sesion"
+                    class="fw-semibold text-secondary"
+                >
+                    Invitado
+                </span>
+
+                <button
+                    id="btn-login-modal"
+                    class="btn btn-outline-rose rounded-pill"
+                    data-bs-toggle="modal"
+                    data-bs-target="#loginModal"
+                >
+                    Ingresar
+                </button>
+
+                <button
+                    id="btn-logout"
+                    class="btn btn-danger rounded-pill d-none"
+                >
+                    Cerrar Sesión
+                </button>
+
+            </div>
+
         </div>
+
+    </div>
+
     </nav>
 
     <!-- Vista Principal -->
@@ -114,7 +165,7 @@
         <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js"></script>
 
-        <!-- Google Maps -->
+        <!-- Leaflet -->
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
         <!-- JavaScript principal con soporte para React JSX -->
