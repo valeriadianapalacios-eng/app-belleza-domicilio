@@ -1,46 +1,3 @@
-/* SEGURIDAD: hash de la clave de admin (la clave no se guarda en texto plano) */
-const ADMIN_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
-
-async function sha256(texto) {
-    const datos = new TextEncoder().encode(texto);
-    const buffer = await crypto.subtle.digest("SHA-256", datos);
-    return Array.from(new Uint8Array(buffer))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-}
-
-async function esClaveAdmin(texto) {
-    try {
-        return (await sha256(texto)) === ADMIN_HASH;
-    } catch (error) {
-        console.error("No se pudo verificar la clave:", error);
-        return false;
-    }
-}
-
-/* SEGURIDAD: evita inyección de HTML (XSS) */
-function escaparHTML(valor) {
-    return String(valor ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
-/* VALIDACIONES */
-function telefonoValido(tel) {
-    return /^\d{4}-?\d{4}$/.test(tel);
-}
-
-function normalizarTelefono(tel) {
-    return tel.replace(/^(\d{4})-?(\d{4})$/, "$1-$2");
-}
-
-function nombreValido(nombre) {
-    return /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'.-]{3,60}$/.test(nombre);
-}
-
 const listaServicios = [
     { id: 1, categoria: "Pestañas", nombre: "Extensiones Clásicas", precio: 25.00, descripcion: "Aplicación pelo a pelo para una mirada natural y delicada.", imagen: "img/extensionesclasicas.jpg" },
     { id: 2, categoria: "Pestañas", nombre: "Extensiones Volumen", precio: 40.00, descripcion: "Abundancia y mayor densidad para un efecto glamuroso e impactante.", imagen: "img/extensionesvolumen.jpg" },
@@ -257,7 +214,7 @@ function inicializarMapaReserva() {
     document.getElementById("reserva-direccion").value = direccion;
 
     marcadorReserva
-        .bindPopup(`<strong>Ubicación seleccionada</strong><br>${escaparHTML(direccion)}`)
+        .bindPopup(`<strong>Ubicación seleccionada</strong><br>${direccion}`)
         .openPopup();
 
        } catch (error) {
@@ -319,7 +276,7 @@ async function buscarDireccionEnMapa() {
             marcadorReserva = L.marker([latitud, longitud]).addTo(mapaReserva);
         }
 
-        marcadorReserva.bindPopup(`<strong>Ubicación encontrada</strong><br>${escaparHTML(direccion)}`).openPopup();
+        marcadorReserva.bindPopup(`<strong>Ubicación encontrada</strong><br>${direccion}`).openPopup();
 
         consultarClimaReserva();
 
@@ -450,10 +407,10 @@ function renderizarTablaClientesAdmin() {
         clientes.forEach(cli => {
             html += `
                 <tr>
-                    <td class="fw-bold">${escaparHTML(cli.nombre)}</td>
-                    <td>${escaparHTML(cli.telefono)}</td>
+                    <td class="fw-bold">${cli.nombre}</td>
+                    <td>${cli.telefono}</td>
                     <td>
-                        <button onclick="eliminarClienteGuardado('${escaparHTML(cli.telefono)}')" class="btn btn-outline-danger btn-sm rounded-pill"> Eliminar Registro</button>
+                        <button onclick="eliminarClienteGuardado('${cli.telefono}')" class="btn btn-outline-danger btn-sm rounded-pill"> Eliminar Registro</button>
                     </td>
                 </tr>
             `;
@@ -663,25 +620,17 @@ function configurarEventos() {
 
     const fIdent = document.getElementById("form-identificacion");
     if (fIdent) {
-        fIdent.addEventListener("submit", async (e) => {
+        fIdent.addEventListener("submit", (e) => {
             e.preventDefault();
-            let tel = document.getElementById("ident-telefono").value.trim();
+            const tel = document.getElementById("ident-telefono").value.trim();
             const err = document.getElementById("ident-error");
             if (!tel) { err.textContent = "Ingresa tu número de teléfono."; err.classList.remove("d-none"); return; }
 
-            if (await esClaveAdmin(tel)) {
+            if (tel === "admin" || tel === "7000-admin") {
                 localStorage.setItem("usuario_activo", JSON.stringify({ nombre: "Administradora", telefono: "N/A", rol: "admin" }));
                 bootstrap.Modal.getInstance(mLogin).hide();
                 inicializarSesion(); renderizarPaginaPrincipal(); return;
             }
-
-            if (!telefonoValido(tel)) {
-                err.textContent = "Ingresa un teléfono válido con formato 0000-0000.";
-                err.classList.remove("d-none");
-                return;
-            }
-            tel = normalizarTelefono(tel);
-            err.classList.add("d-none");
 
             let reg = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
             let enc = reg.find(c => c.telefono === tel);
@@ -716,7 +665,7 @@ function configurarEventos() {
                     const nombreIngresado = document.getElementById("val-nombre-ingresado").value.trim().toLowerCase();
                     const nombreReal = enc.nombre.trim().toLowerCase();
 
-                    if (nombreIngresado === nombreReal) {
+                    if (nombreIngresado === nombreReal || nombreReal.includes(nombreIngresado)) {
                         localStorage.setItem("usuario_activo", JSON.stringify(enc));
                         bootstrap.Modal.getInstance(mLogin).hide();
                         inicializarSesion(); 
@@ -745,15 +694,6 @@ function configurarEventos() {
             e.preventDefault();
             const nombre = document.getElementById("nuevo-nombre").value.trim();
             const telefono = document.getElementById("reg-tel-oculto").value;
-            if (!nombreValido(nombre)) {
-                Swal.fire({
-                    title: "Nombre no válido",
-                    text: "Usa solo letras y espacios (mínimo 3 caracteres).",
-                    icon: "warning",
-                    confirmButtonColor: "#d63384"
-                });
-                return;
-            }
             const nuevo = { nombre, telefono, rol: "cliente" };
 
             if (document.getElementById("check-guardar-datos").checked) {
@@ -824,7 +764,7 @@ function configurarEventos() {
 
             Swal.fire({
             title: "¡Cita agendada con éxito!",
-            html: `<strong>Servicio:</strong> ${escaparHTML(servicio)}<br><strong>Fecha:</strong> ${escaparHTML(fecha)} a las ${escaparHTML(hora)} hrs<br><strong>Departamento:</strong> ${escaparHTML(departamento)}<br><strong>Dirección:</strong> ${escaparHTML(direccion)}<br><br>Te contactaremos a través de WhatsApp para confirmar los detalles.`,
+            html: `<strong>Servicio:</strong> ${servicio}<br><strong>Fecha:</strong> ${fecha} a las ${hora} hrs<br><strong>Departamento:</strong> ${departamento}<br><strong>Dirección:</strong> ${direccion}<br><br>Te contactaremos a través de WhatsApp para confirmar los detalles.`,
             icon: "success",
             confirmButtonColor: "#d63384"
             }).then(() => {
