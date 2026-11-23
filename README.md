@@ -1,22 +1,68 @@
-# App Belleza Domicilio - DAW901
-Sistema de gestión y citas de belleza a domicilio.
+# App-belleza-domicilio · Lashes Rose's Studio
+**Proyecto de cátedra DAW901 · Universidad Don Bosco**
 
-## Nota importante sobre el código
-* El código final y funcional de la aplicación se encuentra en la rama: **`rama-dianaa`**.
+Sistema web de gestión y agendamiento de citas de belleza a domicilio (pestañas, cejas y uñas). Permite a las clientas reservar un servicio desde su casa y a la administradora gestionar la agenda.
 
-- ENLACE DEL VIDEO FASE 1:
-- https://drive.google.com/file/d/1lUcz6N9_xTSdey-ET5kgdogoFT_WVRia/view?usp=sharing
-
-- ENLACE DEL DOCUMENTO FASE 1:
-- https://drive.google.com/file/d/1SZ_Gb63PTWvcaFjxaRbTSFDvhbWesEt3/view?usp=drive_link
-
--  ENLACE DEL VIDEO FASE 2:
--  https://drive.google.com/file/d/1TbXcrmJRfzmm_EAqcRHS5mr2azxuEawI/view?usp=sharing
-
-- ENLACE DEL DOCUMENTO FASE 2:
--  https://drive.google.com/file/d/1Vo9J8vXk6H1WRGwirgTAd81ciqvmlVdL/view?usp=sharing
+🔗 **Sitio desplegado:** https://valeriadianapalacios-eng.github.io/app-belleza-domicilio/
 
 ## Integrantes
-* Carlos Rodrigo Hernández Guardado (Carnet: HG262490)
-* Diana Valeria Palacios Ruiz (Carnet : PR26136)
-* Cristopher Enrique Santamaria Chacon (Carnet: SC261741)
+- Carlos Rodrigo Hernández Guardado · HG262490
+- Diana Valeria Palacios Ruiz · PR261366
+- Cristopher Enrique Santamaria Chacon · SC261741
+
+## Problema que resuelve
+Antes, las citas de Lashes Rose's Studio se coordinaban por WhatsApp, lo que generaba mensajes dispersos, riesgo de citas duplicadas y falta de un registro ordenado de la agenda. La app centraliza el proceso: la clienta elige servicio, fecha, hora disponible y ubicación de su domicilio, y la administradora gestiona todas las citas desde un solo panel.
+
+## Funcionalidades
+**Clienta**
+- Identificación rápida por teléfono (con verificación de nombre).
+- Catálogo de servicios y reserva de cita con fecha, hora, departamento y dirección.
+- Horarios disponibles en tiempo real (evita citas duplicadas).
+- Mapa interactivo para ubicar el domicilio y pronóstico del clima para la fecha.
+- Consulta y cancelación de sus citas.
+
+**Administradora**
+- Panel con estadísticas y gráficas (Chart.js).
+- Agenda general: confirmar, completar y eliminar citas.
+- Exportación de reporte de citas a CSV (Excel).
+- Gestión de datos guardados de clientas (privacidad).
+
+## Tecnologías
+HTML5 · CSS3 · JavaScript · React 18 · Bootstrap 5 · Chart.js · SweetAlert2 · Leaflet
+
+**APIs externas:** Open-Meteo (clima), Nominatim y Photon (direcciones), OpenStreetMap (mapa).
+
+## Seguridad básica
+- Validación de entradas en formularios.
+- Sesiones simuladas con `localStorage`.
+- Escape de HTML contra XSS.
+- La clave de administración se valida contra un hash SHA-256 y no está escrita en el código.
+
+## Mockups (Figma)
+Los mockups desarrollados en Figma durante la Etapa 1 sirvieron como referencia visual para el diseño e implementación de Lashes Rose's Studio. Representan el prototipo e idea inicial de la interfaz y permiten comparar la planificación visual con la aplicación web desarrollada.
+
+📄 [Ver mockups en PDF](mockups/FIGMA_LASHES_ROSE_STUDIO.pdf)
+
+🔗 [Ver diseño en Figma](https://www.figma.com/design/iZ9FJuNf2iMVBhFF4Q7HlO/UDB-Aplicaciones?node-id=0-1&p=f&t=5BkICumKtPXuEH1L-0)
+
+## Cómo ejecutarlo
+1. Clonar el repositorio.
+2. Abrir la carpeta en VS Code e iniciar con **Live Server**.
+3. Acceso de administradora: solicitar la clave al equipo.
+
+## Estructura
+```
+├── index.html
+├── css/style.css
+├── js/main.js
+├── img/
+├── fonts/
+└── mockups/
+```
+
+## Licencia
+Este trabajo está bajo una licencia Creative Commons Atribución-NoComercial 4.0 Internacional (CC BY-NC 4.0).
+
+Permite compartir y adaptar el contenido siempre que se otorgue el crédito a sus autores y no se use con fines comerciales.
+
+[Consultar la licencia completa](LICENSE)

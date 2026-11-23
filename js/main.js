@@ -10,11 +10,17 @@ const listaServicios = [
 
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+function iniciarAplicacion() {
     inicializarSesion();
     renderizarPaginaPrincipal();
     configurarEventos();
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", iniciarAplicacion);
+} else {
+    iniciarAplicacion();
+}
 
 function obtenerUsuario() {
     return JSON.parse(localStorage.getItem("usuario_activo"));
@@ -56,12 +62,15 @@ function renderizarPaginaPrincipal() {
                 <button onclick="cerrarSesionCliente()" class="btn btn-outline-danger btn-sm rounded-pill">Cerrar Sesión</button>
             </div>
         `;
-        html += renderizarTablaCitas("Agenda General de Citas", true);
-        html += renderizarTablaClientesAdmin(); // Sección nueva para gestionar datos de clientas guardadas
-        app.innerHTML = html;
-        return;
-    }
+            html += '<div id="react-estadisticas-root"></div>';
+            html += '<div id="react-tabla-citas-root"></div>';
+            html += renderizarTablaClientesAdmin(); // Sección nueva para gestionar datos de clientas guardadas
 
+            app.innerHTML = html;
+            montarTablaCitasReact("Agenda General de Citas", true);
+            montarEstadisticasReact();
+return;
+}
     html += `
        <section class="hero-principal">
              <video class="hero-video" autoplay muted loop playsinline> <source src="img/SDB.mp4" type="video/mp4">   </video>
@@ -83,253 +92,215 @@ function renderizarPaginaPrincipal() {
         </section>
     `;
 
-    html += renderizarSeccionServicios();
-
-    /*cambios hechos*/
-   if (!usr) {
-    html += `
-      <section id="como-agendar" class="seccion-agendar">
-
-    <div class="agendar-encabezado">
-        <span class="agendar-linea"></span>
-
-        <h2 class="agendar-titulo">
-            ¿Cómo Agendar Tu Cita a Domicilio?
-        </h2>
-
-        <span class="agendar-linea"></span>
-    </div>
-
-    <div class="agendar-box">
-
-        <p class="agendar-subtitulo">
-            Es muy fácil, solo sigue estos 3 pasos
-        </p>
-
-                <div class="agendar-pasos">
-
-                    <div class="agendar-paso">
-                        <div class="agendar-numero">1</div>
-
-                        <h3>Elige tu Servicio</h3>
-
-                        <p>
-                            Haz clic en Reservar en el servicio que prefieras.
-                        </p>
-                    </div>
-
-
-                    <div class="agendar-paso">
-                        <div class="agendar-numero">2</div>
-
-                        <h3>Identifícate</h3>
-
-                        <p>
-                            Ingresa tu número de teléfono celular.
-                        </p>
-                    </div>
-
-
-                    <div class="agendar-paso">
-                        <div class="agendar-numero">3</div>
-
-                        <h3>¡Listo para Agendar!</h3>
-
-                        <p>
-                            Selecciona la fecha, hora disponible y dirección exacta en casa.
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-    `;
-} 
+    html += '<div id="react-servicios-root"></div>';
+    
+    /*FASE 3 - CONTENEDORES REACT SEGÚN EL TIPO DE USUARIO*/
+    if (!usr) {
+        html += '<div id="react-como-agendar-root"></div>';
+    }
     else if (usr && usr.rol === "cliente") {
-        html += renderizarFormularioReserva(usr);
-        html += renderizarTablaCitas("Mis Citas Agendadas", false, usr.telefono);
+        
+        html += '<div id="react-formulario-reserva-root"></div>';
+        html += '<div id="react-tabla-citas-root"></div>';
     }
 
-    app.innerHTML = html;
+       app.innerHTML = html;
 
-    const servPendiente = sessionStorage.getItem("servicio_seleccionado");
-    if (servPendiente && document.getElementById("reserva-servicio")) {
-        document.getElementById("reserva-servicio").value = servPendiente;
+montarServiciosReact();
+montarComoAgendarReact();
+montarFormularioReservaReact(usr);
+
+montarTablaCitasReact(
+    "Mis Citas Agendadas",
+    false,
+    usr?.telefono
+);
+
+setTimeout(() => {
+
+    inicializarMapaReserva();
+
+}, 0);
+
+setTimeout(() => {
+
+    const servPendiente =
+        sessionStorage.getItem("servicio_seleccionado");
+
+    const selectServicio =
+        document.getElementById("reserva-servicio");
+
+    if (servPendiente && selectServicio) {
+
+        selectServicio.value = servPendiente;
+
         sessionStorage.removeItem("servicio_seleccionado");
-        document.getElementById("reservas")?.scrollIntoView({ behavior: 'smooth' });
+
+        document.getElementById("reservas")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     }
+
+}, 50);
+
 }
 
-function renderizarSeccionServicios() { /*Cambios hechos */
-
-    const pestanas = listaServicios.filter(s => s.categoria === "Pestañas");
-    const cejas = listaServicios.filter(s => s.categoria === "Cejas");
-    const unas = listaServicios.filter(s => s.categoria === "Uñas");
-
-    let html = `
-        <section id="servicios" class="seccion-servicios">
-
-            <!-- TEXTO SUPERIOR -->
-            <div class="servicios-etiqueta">
-                <span></span>
-                <p>Belleza a tu alcance</p>
-                <span></span>
-            </div>
-
-            <!-- TÍTULO -->
-            <h2 class="titulo-servicios text-center">
-                Nuestros Servicios
-            </h2>
-
-            <!-- DESCRIPCIÓN -->
-            <p class="subtitulo-servicios">
-                Cuidamos cada detalle para que te sientas siempre tu mejor versión.
-            </p>
-
-
-            <!-- PESTAÑAS Y CEJAS -->
-            <div class="bloque-servicios">
-
-                <!-- PESTAÑAS -->
-                <div class="grupo-servicios">
-
-                    <div class="encabezado-categoria">
-                        <h3>Pestañas</h3>
-                        <span class="linea-categoria"></span>
-                        <p>MÁS MIRADA, MÁS CONFIANZA</p>
-                    </div>
-
-                    <div class="grid-servicios">
-    `;
-
-    pestanas.forEach(s => {
-        html += `
-            <div class="tarjeta-servicio"
-                 style="background-image: url('${s.imagen}')"
-                 onclick="intentarReservar('${s.nombre}')">
-
-                <div class="info-servicio">
-                    <h4>${s.nombre}</h4>
-                    <p>${s.descripcion}</p>
-                    <span>$${s.precio.toFixed(2)}</span>
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `
-                    </div>
-                </div>
-
-
-                <!-- CEJAS -->
-                <div class="grupo-servicios">
-
-                    <div class="encabezado-categoria">
-                        <h3>Cejas</h3>
-                        <span class="linea-categoria"></span>
-                        <p>DEFINE TU BELLEZA NATURAL</p>
-                    </div>
-
-                    <div class="grid-servicios">
-    `;
-
-    cejas.forEach(s => {
-        html += `
-            <div class="tarjeta-servicio"
-                 style="background-image: url('${s.imagen}')"
-                 onclick="intentarReservar('${s.nombre}')">
-
-                <div class="info-servicio">
-                    <h4>${s.nombre}</h4>
-                    <p>${s.descripcion}</p>
-                    <span>$${s.precio.toFixed(2)}</span>
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- UÑAS -->
-            <div class="seccion-unas">
-
-                <div class="encabezado-categoria">
-                    <h3>Uñas</h3>
-                    <span class="linea-categoria"></span>
-                    <p>TU ESTILO EN CADA DETALLE</p>
-                </div>
-
-                <div class="grid-unas">
-    `;
-
-    unas.forEach(s => {
-        html += `
-            <div class="tarjeta-servicio"
-                 style="background-image: url('${s.imagen}')"
-                 onclick="intentarReservar('${s.nombre}')">
-
-                <div class="info-servicio">
-                    <h4>${s.nombre}</h4>
-                    <p>${s.descripcion}</p>
-                    <span>$${s.precio.toFixed(2)}</span>
-                </div>
-
-            </div>
-        `;
-    });
-
-    html += `
-                </div>
-            </div>
-
-        </section>
-    `;
-
-    return html;
-}
 function intentarReservar(nombreServicio) {
     sessionStorage.setItem("servicio_seleccionado", nombreServicio);
     const usr = obtenerUsuario();
     if (!usr) {
         new bootstrap.Modal(document.getElementById('loginModal')).show();
-    } else if (usr.rol === 'admin') {
-        alert("Estás en modo Administradora. Las reservas se realizan desde cuentas de cliente.");
-    } else {
-        renderizarPaginaPrincipal();
+    
+} else if (usr.rol === 'admin') {
+    Swal.fire({
+        title: "Modo administradora",
+        text: "Las reservas se realizan desde cuentas de cliente.",
+        icon: "info",
+        confirmButtonColor: "#d63384"
+    });
+} else {
+    renderizarPaginaPrincipal();
+}
+}
+/*Mapa Interactivo y ubicación del domicilio con Leaflet y OpenStreetMap */
+let mapaReserva = null;
+let marcadorReserva = null;
+
+function inicializarMapaReserva() {
+
+    const contenedor = document.getElementById("mapa-reserva");
+
+    if (!contenedor || typeof L === "undefined") return;
+
+    if (mapaReserva) {
+        mapaReserva.remove();
+        mapaReserva = null;
+        marcadorReserva = null;
     }
+
+    mapaReserva = L.map("mapa-reserva").setView(
+        [13.7942, -88.8965],
+        8
+    );
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapaReserva);
+
+    mapaReserva.on("click", async function (e) {
+    const latitud = e.latlng.lat;
+    const longitud = e.latlng.lng;
+
+    if (marcadorReserva) {
+        marcadorReserva.setLatLng([latitud, longitud]);
+    } else {
+        marcadorReserva = L.marker([latitud, longitud]).addTo(mapaReserva);
+    }
+
+    document.getElementById("reserva-latitud").value = latitud;
+    document.getElementById("reserva-longitud").value = longitud;
+
+        try {
+    const respuesta = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitud}&lon=${longitud}&accept-language=es`
+    );
+
+    const datos = await respuesta.json();
+
+    const direccion = datos.display_name || `${latitud}, ${longitud}`;
+
+    document.getElementById("reserva-direccion").value = direccion;
+
+    marcadorReserva
+        .bindPopup(`<strong>Ubicación seleccionada</strong><br>${direccion}`)
+        .openPopup();
+
+       } catch (error) {
+        console.error("No se pudo obtener la dirección:", error);
+
+        document.getElementById("reserva-direccion").value =
+            `${latitud}, ${longitud}`;
+    }
+
+    consultarClimaReserva();
+});
+}
+/*Búsqueda de direcciones mediante la Api de Photon*/
+async function buscarDireccionEnMapa() {
+    const direccion = document.getElementById("reserva-direccion").value.trim();
+    const departamento = document.getElementById("reserva-departamento").value;
+
+    if (!direccion) return;
+
+    const busqueda = departamento ? `${direccion}, ${departamento}, El Salvador` : `${direccion}, El Salvador`;
+
+    try {
+        const respuesta = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(busqueda)}&limit=1&countrycode=SV`);
+
+        if (!respuesta.ok) {
+        throw new Error(`Error HTTP: ${respuesta.status}`);
 }
 
-function renderizarFormularioReserva(usr) {
-    let opts = listaServicios.map(s => `<option value="${s.nombre}">${s.nombre} - $${s.precio.toFixed(2)}</option>`).join("");
-    return `
-        <section id="reservas" class="my-5 p-4 bg-white rounded-4 shadow-sm border">
-            <h3 class="fw-bold text-rose-dark mb-3 text-center">Personaliza Tu Cita</h3>
-            <p class="text-center text-muted small mb-4">Hola, <strong>${usr.nombre}</strong>. Teléfono: <em>${usr.telefono}</em>. Completa los detalles para tu domicilio.</p>
-            <form id="form-reserva" class="row g-3">
-                <div class="col-md-6"><label class="form-label fw-semibold">Nombre del Cliente</label><input type="text" id="reserva-nombre" class="form-control" required value="${usr.nombre}" readonly></div>
-                <div class="col-md-6"><label class="form-label fw-semibold">Número Telefónico</label><input type="tel" id="reserva-telefono" class="form-control" required value="${usr.telefono}" readonly></div>
-                <div class="col-md-6"><label class="form-label fw-semibold">Tipo de Servicio</label><select id="reserva-servicio" class="form-select" required><option value="">-- Selecciona un servicio --</option>${opts}</select></div>
-                <div class="col-md-3"><label class="form-label fw-semibold">Fecha</label><input type="date" id="reserva-fecha" class="form-control" required onchange="actualizarHorariosDisponibles()"></div>
-                <div class="col-md-3"><label class="form-label fw-semibold">Horario (7 AM - 5 PM)</label><select id="reserva-hora" class="form-select" required><option value="">-- Selecciona fecha primero --</option></select></div>
-                <div class="col-12"><label class="form-label fw-semibold">Dirección de Domicilio</label><textarea id="reserva-direccion" class="form-control" rows="2" required placeholder="Ingresa tu dirección exacta"></textarea></div>
-                <div class="col-12"><div class="form-check p-3 bg-light rounded-3 border"><input class="form-check-input mt-1" type="checkbox" id="check-autorizacion" checked><label class="form-check-label small text-muted" for="check-autorizacion">🔒 <strong>Autorización de datos:</strong> ¿Guardar datos para agilizar tu próxima cita?</label></div></div>
-                <div class="col-12 d-flex justify-content-between align-items-center"><button type="button" onclick="cerrarSesionCliente()" class="btn btn-outline-secondary btn-sm rounded-pill">Cambiar de número</button><button type="submit" class="btn btn-rose-lg rounded-pill px-4">Confirmar y Agendar Cita</button></div>
-            </form>
-            <div id="reserva-mensaje" class="mt-3"></div>
-        </section>
-    `;
+        const datos = await respuesta.json();
+
+        if (!datos.features || datos.features.length === 0) {
+        Swal.fire({
+        title: "Dirección no encontrada",
+        text: "No pudimos ubicarla en el mapa. Puedes guardar la dirección escrita de todas formas.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Guardar igual",
+        cancelButtonText: "Intentar otra dirección",
+        confirmButtonColor: "#d63384"
+                }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            document.getElementById("reserva-latitud").value = "";
+            document.getElementById("reserva-longitud").value = "";
+        }
+    });
+
+    return;
+}
+        const [longitud, latitud] = datos.features[0].geometry.coordinates;
+
+        document.getElementById("reserva-latitud").value = latitud;
+        document.getElementById("reserva-longitud").value = longitud;
+
+        mapaReserva.setView([latitud, longitud], 17);
+
+        if (marcadorReserva) {
+            marcadorReserva.setLatLng([latitud, longitud]);
+        } else {
+            marcadorReserva = L.marker([latitud, longitud]).addTo(mapaReserva);
+        }
+
+        marcadorReserva.bindPopup(`<strong>Ubicación encontrada</strong><br>${direccion}`).openPopup();
+
+        consultarClimaReserva();
+
+    } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+        title: "No se pudo buscar la dirección",
+        text: "Puedes guardar la dirección escrita de todas formas.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Guardar igual",
+        cancelButtonText: "Intentar otra dirección",
+        confirmButtonColor: "#d63384"
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            document.getElementById("reserva-latitud").value = "";
+            document.getElementById("reserva-longitud").value = "";
+        }
+    });
+}
 }
 
+/* NUEVA FUNCIÓN: CONTROL DE HORARIOS DISPONIBLES PARA EVITAR CITAS DUPLICADAS */
 function actualizarHorariosDisponibles() {
     const f = document.getElementById("reserva-fecha").value;
     const sH = document.getElementById("reserva-hora");
@@ -344,41 +315,68 @@ function actualizarHorariosDisponibles() {
     if (libres.length === 0) { sH.innerHTML = `<option value="">No hay horarios disponibles este día</option>`; return; }
     sH.innerHTML = `<option value="">-- Selecciona una hora --</option>` + libres.map(h => `<option value="${h}">${h} hrs</option>`).join("");
 }
+/*Consulta del Pronóstico del Clima mediante Open-Meteo*/
+function obtenerDescripcionClima(codigo) {
+    const codigos = { 0: "Despejado", 1: "Mayormente despejado", 2: "Parcialmente nublado", 3: "Nublado", 45: "Neblina", 48: "Neblina", 51: "Llovizna ligera", 53: "Llovizna moderada", 55: "Llovizna intensa", 61: "Lluvia ligera", 63: "Lluvia moderada", 65: "Lluvia intensa", 80: "Chubascos ligeros", 81: "Chubascos moderados", 82: "Chubascos fuertes", 95: "Tormenta eléctrica", 96: "Tormenta con granizo", 99: "Tormenta fuerte con granizo" };
 
-function renderizarTablaCitas(titulo, esAdmin, filtroTel = null) {
-    let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
-    if (filtroTel) citas = citas.filter(c => c.telefono === filtroTel);
+    return codigos[codigo] || "Condición variable";
+}
+        let climaReservaActual = null;
+        async function consultarClimaReserva() {
 
-    let html = `<section class="my-5 p-4 bg-white rounded-4 shadow-sm border"><div class="d-flex justify-content-between align-items-center mb-4"><h3 class="fw-bold text-rose-dark mb-0">${titulo}</h3>`;
-    if (esAdmin) html += `<div><button onclick="exportarExcel()" class="btn btn-outline-success btn-sm rounded-pill me-2">📊 Descargar Excel</button><span class="badge bg-rose-dark text-white p-2">Admin</span></div>`;
-    html += `</div>`;
+        const latitud = document.getElementById("reserva-latitud")?.value;
+        const longitud = document.getElementById("reserva-longitud")?.value;
+        const direccion = document.getElementById("reserva-direccion")?.value;
+        const fecha = document.getElementById("reserva-fecha")?.value;
+        const contenedor = document.getElementById("clima-reserva");
 
-    if (citas.length === 0) {
-        html += `<p class="text-center text-muted">No hay citas registradas.</p>`;
-    } else {
-        html += `<div class="table-responsive"><table class="table table-hover align-middle"><thead class="bg-rose-pastel"><tr>`;
-        if (esAdmin) html += `<th>Cliente</th>`;
-        html += `<th>Servicio</th><th>Fecha y Hora</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
+        climaReservaActual = null;
 
-        citas.forEach(c => {
-            const badge = c.estado === 'Confirmada' ? 'bg-success' : (c.estado === 'Completada' ? 'bg-info text-dark' : 'bg-warning text-dark');
-            html += `<tr>`;
-            if (esAdmin) html += `<td class="fw-bold">${c.nombre}<br><small class="text-muted">${c.telefono}</small></td>`;
-            html += `<td>${c.servicio}</td><td>${c.fecha} - ${c.hora} hrs</td><td><small>${c.direccion}</small></td><td><span class="badge ${badge}">${c.estado}</span></td><td>`;
-            if (esAdmin) {
-                html += `<button onclick="cambiarEstadoCita(${c.id}, 'Confirmada')" class="btn btn-outline-success btn-sm rounded-pill me-1">Confirmar</button><button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Eliminar</button>`;
-            } else {
-                html += `<button onclick="eliminarCita(${c.id})" class="btn btn-outline-danger btn-sm rounded-pill">Cancelar</button>`;
-            }
-            html += `</td></tr>`;
-        });
-        html += `</tbody></table></div>`;
+        if (!latitud || !longitud || !fecha || !contenedor) return;
+
+        contenedor.className = "alert alert-info";
+        contenedor.innerHTML = "Consultando clima...";
+
+    try {
+        const urlClima = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitud)}&longitude=${encodeURIComponent(longitud)}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=16`;
+        const respuestaClima = await fetch(urlClima);
+
+        if (!respuestaClima.ok) {
+            throw new Error("Error al consultar clima");
+        }
+
+        const datosClima = await respuestaClima.json();
+
+        const indice = datosClima.daily.time.indexOf(fecha);
+
+        if (indice === -1) {
+            contenedor.className = "alert alert-warning";
+            contenedor.innerHTML = "El pronóstico todavía no está disponible para esta fecha.";
+            return;
+        }
+
+        const codigo = datosClima.daily.weather_code[indice];
+        const temperaturaMax = datosClima.daily.temperature_2m_max[indice];
+        const temperaturaMin = datosClima.daily.temperature_2m_min[indice];
+        const lluvia = datosClima.daily.precipitation_probability_max[indice];
+
+        const descripcion = obtenerDescripcionClima(codigo);
+        
+        climaReservaActual = {descripcion, temperaturaMax, temperaturaMin, lluvia,ubicacion: direccion || "Ubicación seleccionada"
+};
+        contenedor.className = "alert alert-light border";
+
+contenedor.innerHTML = `<strong>Clima previsto para la ubicación seleccionada</strong><br>${descripcion}<br>Temperatura: ${temperaturaMin} °C - ${temperaturaMax} °C<br>Probabilidad de lluvia: ${lluvia ?? 0}%`;
+    } catch (error) {
+
+        console.error(error);
+
+        contenedor.className = "alert alert-danger";
+        contenedor.innerHTML = "No fue posible consultar el clima en este momento.";
     }
-    html += `</section>`;
-    return html;
 }
 
-// NUEVA FUNCIÓN: Tabla de gestión de datos de clientas guardadas para la Admin
+/* NUEVA FUNCIÓN: Gestión de datos guardados de clientes desde el Panel Administrativo*/
 function renderizarTablaClientesAdmin() {
     let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
 
@@ -412,7 +410,7 @@ function renderizarTablaClientesAdmin() {
                     <td class="fw-bold">${cli.nombre}</td>
                     <td>${cli.telefono}</td>
                     <td>
-                        <button onclick="eliminarClienteGuardado('${cli.telefono}')" class="btn btn-outline-danger btn-sm rounded-pill">🗑️ Eliminar Registro</button>
+                        <button onclick="eliminarClienteGuardado('${cli.telefono}')" class="btn btn-outline-danger btn-sm rounded-pill"> Eliminar Registro</button>
                     </td>
                 </tr>
             `;
@@ -430,40 +428,173 @@ function renderizarTablaClientesAdmin() {
     return html;
 }
 
-// Función para que la admin elimine los datos guardados de una clienta
+/*NUEVA FUNCIÓN: Eliminación de datos guardados de clientas por privacidad*/
+
 function eliminarClienteGuardado(telefono) {
-    if (confirm(`¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`)) {
-        let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
-        clientes = clientes.filter(c => c.telefono !== telefono);
-        localStorage.setItem("clientes_estudio", JSON.stringify(clientes));
-        renderizarPaginaPrincipal();
-    }
+    Swal.fire({
+        title: "¿Eliminar datos de la clienta?",
+        text: `¿Estás segura de eliminar los datos guardados para el número ${telefono}? Esta acción protegerá la privacidad si el número cambió de dueño.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d63384",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            let clientes = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
+            clientes = clientes.filter(c => c.telefono !== telefono);
+            localStorage.setItem("clientes_estudio", JSON.stringify(clientes));
+
+            renderizarPaginaPrincipal();
+
+            Swal.fire({
+                title: "¡Eliminado!",
+                text: "Los datos guardados de la clienta se eliminaron correctamente.",
+                icon: "success",
+                confirmButtonColor: "#d63384"
+            });
+        }
+    });
 }
 
+/*NUEVA FUNCIÓN: Exportación del reporte de Citas en Formato CSV compatible con Excel*/
 function exportarExcel() {
-    const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
-    if (citas.length === 0) { alert("No hay citas para exportar."); return; }
-    let csv = "data:text/csv;charset=utf-8,ID,Cliente,Telefono,Servicio,Fecha,Hora,Direccion,Estado\n";
-    citas.forEach(c => { csv += `"${c.id}","${c.nombre}","${c.telefono}","${c.servicio}","${c.fecha}","${c.hora}","${c.direccion.replace(/\n/g, ' ')}","${c.estado}"\n`; });
-    const link = document.createElement("a");
-    link.setAttribute("href", encodeURI(csv));
-    link.setAttribute("download", "Reporte_Citas_LashesRosesStudio.csv");
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+
+    const citas =
+        JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+    if (citas.length === 0) {
+
+        Swal.fire({
+            title: "Sin citas",
+            text: "No hay citas para exportar.",
+            icon: "info",
+            confirmButtonColor: "#d63384"
+        });
+
+        return;
+    }
+
+    function escaparCSV(valor) {
+
+        return `"${String(valor ?? "")
+            .replace(/"/g, '""')
+            .replace(/\r?\n|\r/g, " ")}"`;
+    }
+
+    const encabezados = [
+        "ID",
+        "Cliente",
+        "Telefono",
+        "Servicio",
+        "Fecha",
+        "Hora",
+        "Departamento",
+        "Direccion",
+        "Clima",
+        "Estado"
+    ];
+
+    const filas = citas.map(cita => {
+
+        const clima = cita.clima
+            ? `${cita.clima.descripcion} | ${cita.clima.temperaturaMin}°C-${cita.clima.temperaturaMax}°C | Lluvia ${cita.clima.lluvia ?? 0}%`
+            : "Sin pronóstico";
+
+        return [
+            cita.id,
+            cita.nombre,
+            cita.telefono,
+            cita.servicio,
+            cita.fecha,
+            cita.hora,
+            cita.departamento || cita.municipio || "",
+            cita.direccion || "",
+            clima,
+            cita.estado
+        ]
+            .map(escaparCSV)
+            .join(",");
+    });
+
+    const contenidoCSV =
+        "\uFEFF" +
+        encabezados.join(",") +
+        "\n" +
+        filas.join("\n");
+
+    const archivo = new Blob(
+        [contenidoCSV],
+        { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url =
+        URL.createObjectURL(archivo);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "Reporte_Citas_LashesRosesStudio.csv";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
 }
+/*NUEVA FUNCIÓN: Control de Estados de las citas desde el panel administrativo*/
 
 function cambiarEstadoCita(id, estado) {
     let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
     citas = citas.map(c => c.id === id ? { ...c, estado } : c);
     localStorage.setItem("citas_estudio", JSON.stringify(citas));
     renderizarPaginaPrincipal();
+
+    Swal.fire({
+        title: estado === "Completada" ? "¡Cita completada!" : "¡Cita confirmada!",
+        text: estado === "Completada"
+            ? "La cita se marcó como completada correctamente."
+            : "La cita se confirmó correctamente.",
+        icon: "success",
+        confirmButtonColor: "#d63384"
+    });
 }
 
+
+
 function eliminarCita(id) {
-    let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
-    citas = citas.filter(c => c.id !== id);
-    localStorage.setItem("citas_estudio", JSON.stringify(citas));
-    renderizarPaginaPrincipal();
+    Swal.fire({
+        title: "¿Eliminar cita?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d63384",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar"
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            let citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
+            citas = citas.filter(c => c.id !== id);
+            localStorage.setItem("citas_estudio", JSON.stringify(citas));
+            renderizarPaginaPrincipal();
+
+            Swal.fire({
+                title: "¡Cita eliminada!",
+                text: "La cita se eliminó correctamente.",
+                icon: "success",
+                confirmButtonColor: "#d63384"
+            });
+        }
+    });
 }
+
 
 function cerrarSesionCliente() {
     localStorage.removeItem("usuario_activo");
@@ -596,13 +727,16 @@ function configurarEventos() {
             const servicio = document.getElementById("reserva-servicio").value;
             const fecha = document.getElementById("reserva-fecha").value;
             const hora = document.getElementById("reserva-hora").value;
+            const departamento = document.getElementById("reserva-departamento").value;
             const direccion = document.getElementById("reserva-direccion").value;
-            const msg = document.getElementById("reserva-mensaje");
-
-            if (!nombre || !telefono || !servicio || !fecha || !hora || !direccion) {
-                msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos.</div>`;
-                return;
-            }
+            const latitud = document.getElementById("reserva-latitud").value;
+            const longitud = document.getElementById("reserva-longitud").value;
+            const mapsUrl = latitud && longitud
+            ? `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`: ""; const msg = document.getElementById("reserva-mensaje");
+            if (!nombre.trim() || !telefono.trim() || !servicio || !fecha || !hora || !departamento || !direccion.trim()) {            
+            msg.innerHTML = `<div class="alert alert-danger">Completa todos los datos correctamente.</div>`;
+            return;
+}
 
             if (document.getElementById("check-autorizacion").checked) {
                 let reg = JSON.parse(localStorage.getItem("clientes_estudio")) || [];
@@ -613,30 +747,34 @@ function configurarEventos() {
             }
 
             const citas = JSON.parse(localStorage.getItem("citas_estudio")) || [];
-            citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, direccion, estado: "Pendiente" });
-            localStorage.setItem("citas_estudio", JSON.stringify(citas));
 
-            msg.innerHTML = `
-                <div class="card border-0 shadow-sm rounded-4 bg-rose-pastel p-4 text-center my-3">
-                    <h4 class="fw-bold text-rose-dark mb-1">SU INFORMACIÓN</h4>
-                    <p class="text-muted small mb-3">Datos de su cita reservada</p>
-                    <ul class="list-group list-group-flush rounded-3 overflow-hidden mb-3">
-                        <li class="list-group-item bg-white py-2"><strong>Cliente:</strong> ${nombre}</li>
-                        <li class="list-group-item bg-white py-2"><strong>Teléfono:</strong> ${telefono}</li>
-                        <li class="list-group-item bg-white py-2"><strong>Servicio:</strong> ${servicio}</li>
-                        <li class="list-group-item bg-white py-2"><strong>Fecha y Hora:</strong> ${fecha} a las ${hora} hrs</li>
-                        <li class="list-group-item bg-white py-2"><strong>Dirección:</strong> ${direccion}</li>
-                    </ul>
-                    <div class="alert alert-success py-2 mb-0">¡Cita agendada con éxito! <strong>Te contactaremos a través de WhatsApp</strong> para confirmar los detalles de tu visita a domicilio.</div>
-                </div>
-            `;
+            const horarioOcupado = citas.some(
+            c => c.fecha === fecha && c.hora === hora
+            );
+
+            if (horarioOcupado) {
+            msg.innerHTML = `<div class="alert alert-danger">Ese horario ya está reservado. Selecciona otro.</div>`;
+            actualizarHorariosDisponibles();
+            return;
+            }
+                citas.push({ id: Date.now(), nombre, telefono, servicio, fecha, hora, departamento, direccion, latitud, longitud, mapsUrl, clima: climaReservaActual, estado: "Pendiente" });
+                localStorage.setItem("citas_estudio", JSON.stringify(citas));
+
             e.target.reset();
+
+            Swal.fire({
+            title: "¡Cita agendada con éxito!",
+            html: `<strong>Servicio:</strong> ${servicio}<br><strong>Fecha:</strong> ${fecha} a las ${hora} hrs<br><strong>Departamento:</strong> ${departamento}<br><strong>Dirección:</strong> ${direccion}<br><br>Te contactaremos a través de WhatsApp para confirmar los detalles.`,
+            icon: "success",
+            confirmButtonColor: "#d63384"
+            }).then(() => {
             renderizarPaginaPrincipal();
+            });        
         }
     });
 }
 
-// Sección relacionada al HTML hecha por Cristopher scrollIntoView
+/*NUEVA FUNCIÓN: CAMBIO VISUAL DEL NAVBAR AL REALIZAR SCROLL */
     function actualizarNavbar(){
     const navbar = document.getElementById("navbar-principal");
 
@@ -647,9 +785,1075 @@ function configurarEventos() {
         navbar.classList.add("navbar-scroll");
     } else {
         navbar.classList.remove("navbar-scroll");
-        navbar.classList.remove("navbar-scroll");
     }
 }
 
 window.addEventListener("scroll", actualizarNavbar);
 window.addEventListener("load", actualizarNavbar);
+
+
+/* FASE 3 - REACT: COMPONENTE REUTILIZABLE PARA LAS TARJETAS DE SERVICIOS */
+
+function TarjetaServicioReact({ servicio, onSeleccionar }) {
+
+    return (
+            <div
+            className="tarjeta-servicio"
+            onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onSeleccionar(servicio);
+            }}
+            style={{
+            backgroundImage: `url('${servicio.imagen}')`
+            }}
+>
+
+            <div className="info-servicio">
+
+                <h4>
+                    {servicio.nombre}
+                </h4>
+
+                <p>
+                    {servicio.descripcion}
+                </p>
+
+                <span>
+                    ${servicio.precio.toFixed(2)}
+                </span>
+
+            </div>
+
+        </div>
+    );
+}
+
+
+/* FASE 3 -COMPONENTE PARA AGRUPAR LOS SERVICIOS */
+
+function GrupoServiciosReact({ titulo, servicios, onSeleccionar, claseGrupo = "grupo-servicios", claseGrid = "grid-servicios" }) {
+
+    return (
+        <div className={claseGrupo}>
+
+            <div className="encabezado-categoria">
+
+                <h3>{titulo}</h3>
+
+                <span className="linea-categoria"></span>
+
+            </div>
+
+            <div className={claseGrid}>
+
+                {servicios.map(servicio => (
+
+                    <TarjetaServicioReact
+                        key={servicio.id}
+                        servicio={servicio}
+                        onSeleccionar={onSeleccionar}
+                    />
+
+                ))}
+
+            </div>
+
+        </div>
+    );
+}
+
+/* SECCIÓN PRINCIPAL DE SERVICIOS EN REACT */
+
+function SeccionServiciosReact() {
+
+    const [servicioSeleccionado, setServicioSeleccionado] = React.useState(null);
+
+    const pestanas = listaServicios.filter(
+        servicio => servicio.categoria === "Pestañas"
+    );
+
+    const cejas = listaServicios.filter(
+        servicio => servicio.categoria === "Cejas"
+    );
+
+    const unas = listaServicios.filter(
+        servicio => servicio.categoria === "Uñas"
+    );
+
+    function seleccionarServicio(servicio) {
+
+        setServicioSeleccionado(servicio);
+
+        intentarReservar(servicio.nombre);
+    }
+    return (
+    <section id="servicios" className="seccion-servicios">
+
+        <h2 className="titulo-servicios text-center">
+            Nuestros Servicios
+        </h2>
+
+        <p className="visually-hidden" aria-live="polite">
+        {servicioSeleccionado
+        ? `Servicio seleccionado: ${servicioSeleccionado.nombre}`
+        : "Ningún servicio seleccionado"}
+        </p>
+
+        <div className="bloque-servicios">
+
+            <GrupoServiciosReact
+                titulo="Pestañas"
+                servicios={pestanas}
+                onSeleccionar={seleccionarServicio}
+            />
+
+            <GrupoServiciosReact
+                titulo="Cejas"
+                servicios={cejas}
+                onSeleccionar={seleccionarServicio}
+            />
+
+        </div>
+
+        <GrupoServiciosReact
+            titulo="Uñas"
+            servicios={unas}
+            onSeleccionar={seleccionarServicio}
+            claseGrupo="seccion-unas"
+            claseGrid="grid-unas"
+        />
+
+    </section>
+);
+ 
+}
+
+/*FASE 3 - MONTAJE DE LA SECCIÓN DE SERVICIOS CON REACT*/
+function montarServiciosReact() {
+    const contenedor = document.getElementById("react-servicios-root");
+    if (!contenedor) return;
+
+    const root = ReactDOM.createRoot(contenedor);
+    root.render(<SeccionServiciosReact />);
+}
+
+/* ETAPA 3: SECCIÓN CÓMO AGENDAR CON REACT */
+
+function ComoAgendarReact() {
+    const pasos = [
+        {
+            numero: 1,
+            titulo: "Elige tu Servicio",
+            descripcion: "Haz clic en Reservar en el servicio que prefieras."
+        },
+        {
+            numero: 2,
+            titulo: "Identifícate",
+            descripcion: "Ingresa tu número de teléfono celular."
+        },
+        {
+            numero: 3,
+            titulo: "¡Listo para Agendar!",
+            descripcion: "Selecciona la fecha, hora disponible y dirección exacta en casa."
+        }
+    ];
+
+    return (
+        <section id="como-agendar" className="seccion-agendar">
+
+            <div className="agendar-encabezado">
+                <span className="agendar-linea"></span>
+
+                <h2 className="agendar-titulo">
+                    ¿Cómo Agendar Tu Cita a Domicilio?
+                </h2>
+
+                <span className="agendar-linea"></span>
+            </div>
+
+            <div className="agendar-box">
+
+                <p className="agendar-subtitulo">
+                    Es muy fácil, solo sigue estos 3 pasos
+                </p>
+
+                <div className="agendar-pasos">
+
+                    {pasos.map(paso => (
+                        <div className="agendar-paso" key={paso.numero}>
+
+                            <div className="agendar-numero">
+                                {paso.numero}
+                            </div>
+
+                            <h3>{paso.titulo}</h3>
+
+                            <p>{paso.descripcion}</p>
+
+                        </div>
+                    ))}
+
+                </div>
+
+            </div>
+
+        </section>
+    );
+}
+
+function montarComoAgendarReact() {
+    const contenedor =
+        document.getElementById("react-como-agendar-root");
+
+    if (!contenedor) return;
+
+    const root = ReactDOM.createRoot(contenedor);
+
+    root.render(<ComoAgendarReact />);
+}
+
+/* ETAPA 3: FORMULARIO DE RESERVA CON REACT */
+
+function FormularioReservaReact({ usuario }) {
+    const departamentos = ["Ahuachapán","Cabañas","Chalatenango","Cuscatlán","La Libertad","La Paz","La Unión","Morazán","San Miguel","San Salvador","San Vicente","Santa Ana","Sonsonate","Usulután"];
+
+    const fechaMinima = new Date().toLocaleDateString("en-CA");
+
+    return (
+        <section id="reservas" className="my-5 p-4 bg-white rounded-4 shadow-sm border"
+        >
+
+            <h3 className="fw-bold text-rose-dark mb-3 text-center">
+                Personaliza Tu Cita
+            </h3>
+
+            <p className="text-center text-muted small mb-4">
+                Hola, <strong>{usuario.nombre}</strong>. Teléfono:{" "}
+                <em>{usuario.telefono}</em>. Completa los detalles para tu domicilio.
+            </p>
+
+            <form id="form-reserva" className="row g-3">
+
+                <div className="col-md-6">
+                    <label className="form-label fw-semibold">
+                        Nombre del Cliente
+                    </label>
+
+                    <input
+                        type="text"
+                        id="reserva-nombre"
+                        className="form-control"
+                        required
+                        value={usuario.nombre}
+                        readOnly
+                    />
+                </div>
+
+                <div className="col-md-6">
+                    <label className="form-label fw-semibold">
+                        Número Telefónico
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="reserva-telefono"
+                        className="form-control"
+                        required
+                        value={usuario.telefono}
+                        readOnly
+                    />
+                </div>
+
+                <div className="col-md-6">
+                    <label className="form-label fw-semibold">
+                        Tipo de Servicio
+                    </label>
+
+                    <select
+                        id="reserva-servicio"
+                        className="form-select"
+                        required
+                        defaultValue=""
+                    >
+                        <option value="">
+                            -- Selecciona un servicio --
+                        </option>
+
+                        {listaServicios.map(servicio => (
+                            <option
+                                key={servicio.id}
+                                value={servicio.nombre}
+                            >
+                                {servicio.nombre} - ${servicio.precio.toFixed(2)}
+                            </option>
+                        ))}
+
+                    </select>
+                </div>
+
+                <div className="col-md-3">
+                    <label className="form-label fw-semibold">
+                        Fecha
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reserva-fecha"
+                        className="form-control"
+                        required
+                        min={fechaMinima}
+                        onChange={() => {
+                            actualizarHorariosDisponibles();
+                            consultarClimaReserva();
+                        }}
+                    />
+                </div>
+
+                <div className="col-md-3">
+                    <label className="form-label fw-semibold">
+                        Horario (7 AM - 5 PM)
+                    </label>
+
+                    <select
+                        id="reserva-hora"
+                        className="form-select"
+                        required
+                        defaultValue=""
+                    >
+                        <option value="">
+                            -- Selecciona fecha primero --
+                        </option>
+                    </select>
+                </div>
+
+                <div className="col-md-6">
+
+                    <label className="form-label fw-semibold">
+                        Departamento
+                    </label>
+
+                    <select
+                        id="reserva-departamento"
+                        className="form-select"
+                        required
+                        defaultValue=""
+                    >
+
+                        <option value="">
+                            -- Selecciona un departamento --
+                        </option>
+
+                        {departamentos.map(departamento => (
+                            <option
+                                key={departamento}
+                                value={departamento}
+                            >
+                                {departamento}
+                            </option>
+                        ))}
+
+                    </select>
+
+                </div>
+
+                <div className="col-12">
+                    <div
+                        id="clima-reserva"
+                        className="d-none"
+                    ></div>
+                </div>
+
+                <div className="col-12">
+
+                    <label className="form-label fw-semibold">
+                        Dirección exacta del domicilio
+                    </label>
+
+                    <div className="input-group mb-2">
+
+                        <input
+                            type="text"
+                            id="reserva-direccion"
+                            className="form-control"
+                            placeholder="Escribe tu dirección exacta"
+                        />
+
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={buscarDireccionEnMapa}
+                        >
+                            Buscar en mapa
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="mapa-reserva"
+                        style={{
+                            height: "350px",
+                            width: "100%",
+                            borderRadius: "12px"
+                        }}
+                    ></div>
+
+                    <input type="hidden" id="reserva-latitud" />
+                    <input type="hidden" id="reserva-longitud" />
+
+                    <small className="text-muted">
+                        Haz clic en el mapa para marcar la ubicación exacta de tu domicilio.
+                    </small>
+
+                </div>
+
+                <div className="col-12">
+
+                    <div className="form-check p-3 bg-light rounded-3 border">
+
+                        <input
+                            className="form-check-input mt-1"
+                            type="checkbox"
+                            id="check-autorizacion"
+                            defaultChecked
+                        />
+
+                        <label
+                            className="form-check-label small text-muted"
+                            htmlFor="check-autorizacion"
+                        >
+                            <strong>Autorización de datos:</strong>{" "}
+                            ¿Guardar datos para agilizar tu próxima cita?
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <div className="col-12 d-flex justify-content-between align-items-center">
+
+                    <button
+                        type="button"
+                        onClick={cerrarSesionCliente}
+                        className="btn btn-outline-secondary btn-sm rounded-pill"
+                    >
+                        Cambiar de número
+                    </button>
+
+                    <button
+                        type="submit"
+                        className="btn btn-rose-lg rounded-pill px-4"
+                    >
+                        Confirmar y Agendar Cita
+                    </button>
+
+                </div>
+
+            </form>
+
+            <div
+                id="reserva-mensaje"
+                className="mt-3"
+            ></div>
+
+        </section>
+    );
+}
+
+function montarFormularioReservaReact(usuario) {
+
+    const contenedor =
+        document.getElementById("react-formulario-reserva-root");
+
+    if (!contenedor || !usuario || usuario.rol !== "cliente") return;
+
+    const root = ReactDOM.createRoot(contenedor);
+
+    root.render(
+        <FormularioReservaReact usuario={usuario} />
+    );
+}
+
+/* ETAPA 3: TABLA DE CITAS CON REACT */
+
+function TablaCitasReact({ titulo, esAdmin, filtroTel = null }) {
+
+    const [citas] = React.useState(() => {
+
+        let registros =
+            JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+        if (filtroTel) {
+            registros = registros.filter(
+                cita => cita.telefono === filtroTel
+            );
+        }
+
+        return registros;
+    });
+
+    function obtenerClaseEstado(estado) {
+
+        if (estado === "Confirmada") {
+            return "bg-success";
+        }
+
+        if (estado === "Completada") {
+            return "bg-info text-dark";
+        }
+
+        return "bg-warning text-dark";
+    }
+
+    return (
+        <section className="my-5 p-4 bg-white rounded-4 shadow-sm border">
+
+            <div className="d-flex justify-content-between align-items-center mb-4">
+
+                <h3 className="fw-bold text-rose-dark mb-0">
+                    {titulo}
+                </h3>
+
+                {esAdmin && (
+
+                    <div>
+
+                        <button
+                            type="button"
+                            onClick={exportarExcel}
+                            className="btn btn-outline-success btn-sm rounded-pill me-2"
+                        >
+                            Descargar Excel
+                        </button>
+
+                        <span className="badge bg-rose-dark text-white p-2">
+                            Admin
+                        </span>
+
+                    </div>
+
+                )}
+
+            </div>
+
+            {citas.length === 0 ? (
+
+                <p className="text-center text-muted">
+                    No hay citas registradas.
+                </p>
+
+            ) : (
+
+                <div className="table-responsive">
+
+                    <table className="table table-hover align-middle">
+
+                        <thead className="bg-rose-pastel">
+
+                            <tr>
+
+                                {esAdmin && (
+                                    <th>Cliente</th>
+                                )}
+
+                                <th>Servicio</th>
+                                <th>Fecha y Hora</th>
+                                <th>Departamento</th>
+                                <th>Dirección</th>
+                                <th>Clima</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {citas.map(cita => (
+
+                                <tr key={cita.id}>
+
+                                    {esAdmin && (
+
+                                        <td className="fw-bold">
+
+                                            {cita.nombre}
+
+                                            <br />
+
+                                            <small className="text-muted">
+                                                {cita.telefono}
+                                            </small>
+
+                                        </td>
+
+                                    )}
+
+                                    <td>
+                                        {cita.servicio}
+                                    </td>
+
+                                    <td>
+                                        {cita.fecha} - {cita.hora} hrs
+                                    </td>
+
+                                    <td>
+
+                                        {cita.departamento ||
+                                            cita.municipio ||
+                                            "No registrado"}
+
+                                    </td>
+
+                                    <td>
+
+                                        <small>
+                                            {cita.direccion}
+                                        </small>
+
+                                        {cita.mapsUrl && (
+
+                                            <>
+
+                                                <br />
+
+                                                <a
+                                                    href={cita.mapsUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="btn btn-outline-secondary btn-sm mt-2"
+                                                >
+                                                    Ver en Google Maps
+                                                </a>
+
+                                            </>
+
+                                        )}
+
+                                    </td>
+
+                                    <td>
+
+                                        <small>
+
+                                            {cita.clima ? (
+
+                                                <>
+
+                                                    {cita.clima.descripcion}
+
+                                                    <br />
+
+                                                    {cita.clima.temperaturaMin} °C -{" "}
+                                                    {cita.clima.temperaturaMax} °C
+
+                                                    <br />
+
+                                                    Lluvia: {cita.clima.lluvia ?? 0}%
+
+                                                </>
+
+                                            ) : (
+
+                                                "Sin pronóstico"
+
+                                            )}
+
+                                        </small>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            className={`badge ${obtenerClaseEstado(
+                                                cita.estado
+                                            )}`}
+                                        >
+                                            {cita.estado}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        {esAdmin ? (
+
+                                            <>
+
+                                                {cita.estado === "Pendiente" && (
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            cambiarEstadoCita(
+                                                                cita.id,
+                                                                "Confirmada"
+                                                            )
+                                                        }
+                                                        className="btn btn-outline-success btn-sm rounded-pill me-1"
+                                                    >
+                                                        Confirmar
+                                                    </button>
+
+                                                )}
+
+                                                {cita.estado === "Confirmada" && (
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            cambiarEstadoCita(
+                                                                cita.id,
+                                                                "Completada"
+                                                            )
+                                                        }
+                                                        className="btn btn-outline-primary btn-sm rounded-pill me-1"
+                                                    >
+                                                        Completar cita
+                                                    </button>
+
+                                                )}
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        eliminarCita(cita.id)
+                                                    }
+                                                    className="btn btn-outline-danger btn-sm rounded-pill"
+                                                >
+                                                    Eliminar
+                                                </button>
+
+                                            </>
+
+                                        ) : (
+
+                                            cita.estado === "Completada" ? (
+
+                                                <span className="text-muted small">
+                                                    Cita finalizada
+                                                </span>
+
+                                            ) : (
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        eliminarCita(cita.id)
+                                                    }
+                                                    className="btn btn-outline-danger btn-sm rounded-pill"
+                                                >
+                                                    Cancelar
+                                                </button>
+
+                                            )
+
+                                        )}
+
+                                    </td>
+
+                                </tr>
+
+                            ))}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            )}
+
+        </section>
+    );
+}
+
+
+/* MONTA LA TABLA DE CITAS EN REACT */
+
+function montarTablaCitasReact(
+    titulo,
+    esAdmin,
+    filtroTel = null
+) {
+
+    const contenedor =
+        document.getElementById("react-tabla-citas-root");
+
+    if (!contenedor) return;
+
+    const root =
+        ReactDOM.createRoot(contenedor);
+
+    root.render(
+        <TablaCitasReact
+            titulo={titulo}
+            esAdmin={esAdmin}
+            filtroTel={filtroTel}
+        />
+    );
+}
+
+/* ETAPA 3: ESTADÍSTICAS DEL PANEL ADMINISTRATIVO CON REACT */
+
+function EstadisticasReact() {
+
+    const citas =
+        JSON.parse(localStorage.getItem("citas_estudio")) || [];
+
+    const pendientes =
+        citas.filter(cita => cita.estado === "Pendiente").length;
+
+    const confirmadas =
+        citas.filter(cita => cita.estado === "Confirmada").length;
+
+    const completadas =
+        citas.filter(cita => cita.estado === "Completada").length;
+
+    const conteoServicios = {};
+
+    citas.forEach(cita => {
+
+        conteoServicios[cita.servicio] =
+            (conteoServicios[cita.servicio] || 0) + 1;
+
+    });
+
+    const serviciosOrdenados =
+        Object.entries(conteoServicios)
+            .sort((a, b) => b[1] - a[1]);
+
+    const graficaEstadosRef = React.useRef(null);
+    const graficaServiciosRef = React.useRef(null);
+
+    React.useEffect(() => {
+
+        if (typeof Chart === "undefined") {
+            console.error("Chart.js no está cargado.");
+            return;
+        }
+
+        const graficaEstados = new Chart(
+            graficaEstadosRef.current,
+            {
+                type: "doughnut",
+
+                data: {
+                    labels: [
+                        "Pendientes",
+                        "Confirmadas",
+                        "Completadas"
+                    ],
+
+                    datasets: [{
+                        data: [
+                            pendientes,
+                            confirmadas,
+                            completadas
+                        ],
+
+                        backgroundColor: [
+                            "#f4c95d",
+                            "#e8a0bf",
+                            "#8ecfba"
+                        ],
+
+                        borderWidth: 2
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            position: "bottom"
+                        }
+                    }
+                }
+            }
+        );
+
+        const graficaServicios = new Chart(
+            graficaServiciosRef.current,
+            {
+                type: "bar",
+
+                data: {
+                    labels:
+                        serviciosOrdenados.map(servicio => servicio[0]),
+
+                    datasets: [{
+                        label: "Número de citas",
+
+                        data:
+                            serviciosOrdenados.map(servicio => servicio[1]),
+
+                        backgroundColor: "#e8a0bf",
+                        borderColor: "#c96b95",
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: "y",
+
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        );
+
+        return () => {
+            graficaEstados.destroy();
+            graficaServicios.destroy();
+        };
+
+    }, []);
+
+    return (
+        <section className="my-5 p-4 bg-white rounded-4 shadow-sm border">
+
+            <h3 className="fw-bold text-rose-dark mb-4">
+                Estadísticas de Citas
+            </h3>
+
+            <div className="row g-3 mb-4">
+
+                <div className="col-md-3 col-6">
+
+                    <div className="p-3 rounded-4 bg-light text-center">
+
+                        <h6 className="text-muted">
+                            Total de citas
+                        </h6>
+
+                        <h2 className="fw-bold">
+                            {citas.length}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div className="col-md-3 col-6">
+
+                    <div className="p-3 rounded-4 bg-light text-center">
+
+                        <h6 className="text-muted">
+                            Pendientes
+                        </h6>
+
+                        <h2 className="fw-bold">
+                            {pendientes}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div className="col-md-3 col-6">
+
+                    <div className="p-3 rounded-4 bg-light text-center">
+
+                        <h6 className="text-muted">
+                            Confirmadas
+                        </h6>
+
+                        <h2 className="fw-bold">
+                            {confirmadas}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div className="col-md-3 col-6">
+
+                    <div className="p-3 rounded-4 bg-light text-center">
+
+                        <h6 className="text-muted">
+                            Completadas
+                        </h6>
+
+                        <h2 className="fw-bold">
+                            {completadas}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div className="row g-4">
+
+                <div className="col-md-6">
+
+                    <h5 className="text-center">
+                        Citas por estado
+                    </h5>
+
+                    <div style={{ height: "300px" }}>
+
+                        <canvas ref={graficaEstadosRef}></canvas>
+
+                    </div>
+
+                </div>
+
+                <div className="col-md-6">
+
+                    <h5 className="text-center">
+                        Servicios más solicitados
+                    </h5>
+
+                    <div style={{ height: "300px" }}>
+
+                        <canvas ref={graficaServiciosRef}></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+    );
+}
+
+/*ETAPA 3 - MONTA LAS ESTADÍSTICAS DEL PANEL ADMINISTRATIVO EN REACT */
+
+function montarEstadisticasReact() {
+
+    const contenedor =
+        document.getElementById("react-estadisticas-root");
+
+    if (!contenedor) return;
+
+    const root =
+        ReactDOM.createRoot(contenedor);
+
+    root.render(
+        <EstadisticasReact />
+    );
+}

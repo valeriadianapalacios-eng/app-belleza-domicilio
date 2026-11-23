@@ -1,0 +1,12 @@
+-- MOCKUPS DE FIGMA
+--
+-- Los mockups desarrollados en Figma durante la Etapa 1 funcionaron como referencia 
+-- visual para el diseño e implementación de Lashes Rose´s Studio.
+--
+-- Estos diseños representan el prototipo e idea inicial de la interfaz y permiten  
+-- comparar la planificación visual realizada al inicio del proyecto con la 
+-- aplicación web desarrollada
+--
+-- https://www.figma.com/design/iZ9FJuNf2iMVBhFF4Q7HlO/UDB-Aplicaciones?node-id=0-1&t=Y8357SrGrf8PxZcB-1
+-- Enlace a Figma
+--

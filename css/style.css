@@ -1,6 +1,4 @@
-/* ==================================================
-   1. FUENTE Y COLORES GENERALES
-================================================== */
+/*1. FUENTE Y COLORES GENERALES*/
 
 @font-face {
     font-family: 'ivy-presto-text';
@@ -14,15 +12,25 @@
     --text-dark: #4a4e69;
 }
 
+html,
 body {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     color: var(--text-dark) !important;
     font-family: 'ivy-presto-text', serif;
 }
 
+#app-content {
+    flex: 1;
+}
 
-/* ==================================================
-   2. NAVBAR
-================================================== */
+
+/*2. NAVBAR*/
 
 #navbar-principal {
     width: 100%;
@@ -41,9 +49,9 @@ body {
 }
 
 .navbar-logo {
-    justify-self: center;
     margin: 0;
     padding: 0;
+    z-index: 1060;
 }
 
 .navbar-logo img {
@@ -51,7 +59,6 @@ body {
     height: auto;
     display: block;
 }
-
 #navbar-principal .nav-link,
 #navbar-principal #usuario-sesion {
     color: #ffffff !important;
@@ -62,11 +69,53 @@ body {
     color: #ffffff !important;
     font-size: 1.3rem;
 }
+/* Distribución del navbar en escritorio */
+
+@media (min-width: 992px) {
+
+    #navbar-principal .container {
+        position: relative;
+        min-height: 78px;
+    }
+
+    .navbar-logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #navbarContenido {
+        width: 100%;
+    }
+
+    #navbarContenido .navbar-nav {
+        margin-right: auto;
+    }
+
+    .navbar-sesion {
+        margin-left: auto !important;
+    }
+}
 
 
-/* ==================================================
-   3. PORTADA / VIDEO PRINCIPAL
-================================================== */
+/* Evita que el navbar fijo tape el panel administrativo */
+
+#app-content > .p-4:first-child {
+    margin-top: 80px;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+
+/* Mantiene las tablas legibles en pantallas pequeñas */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/*3.PORTADA y VIDEO PRINCIPAL*/
 
 .hero-principal {
     position: relative;
@@ -144,16 +193,14 @@ body {
 }
 
 
-/* ==================================================
-   4. NUESTROS SERVICIOS
-================================================== */
+/*4. NUESTROS SERVICIOS*/
 
 .seccion-servicios {
     padding: 80px 0;
 }
 
 
-/* Belleza a tu alcance */
+/*Texto: Belleza a tu alcance*/
 
 .servicios-etiqueta {
     display: flex;
@@ -183,7 +230,7 @@ body {
 }
 
 
-/* Título principal */
+/*Texto: Título principal */
 
 .titulo-servicios {
     font-size: 3rem;
@@ -206,7 +253,7 @@ body {
 }
 
 
-/* Pestañas y Cejas */
+/*Texto: Pestañas y Cejas */
 
 .bloque-servicios {
     display: grid;
@@ -225,7 +272,7 @@ body {
 }
 
 
-/* Uñas */
+/*Texto: Uñas */
 
 .grid-unas {
     display: grid;
@@ -235,7 +282,7 @@ body {
 }
 
 
-/* Encabezados de categorías */
+/*Texto: Encabezados de categorías */
 
 .encabezado-categoria {
     display: flex;
@@ -276,7 +323,7 @@ body {
 }
 
 
-/* Tarjetas de servicios */
+/*Texto: Tarjetas de servicios */
 
 .tarjeta-servicio {
     position: relative;
@@ -303,7 +350,7 @@ body {
 }
 
 
-/* Información sobre las imágenes */
+/*Texto: Información sobre las imágenes */
 
 .info-servicio {
     position: absolute;
@@ -327,9 +374,7 @@ body {
 }
 
 
-/* ==================================================
-   5. CÓMO AGENDAR
-================================================== */
+/*5. CÓMO AGENDAR*/
 
 .seccion-agendar {
     padding: 80px 0;
@@ -344,7 +389,7 @@ body {
 }
 
 
-/* Título */
+/*Texto: Título */
 
 .agendar-titulo {
     text-align: center;
@@ -379,7 +424,7 @@ body {
 }
 
 
-/* Los tres pasos */
+/*Texto de títulos "¿Cómo Agendar Tu Cita a Domicilio?"*/
 
 .agendar-pasos {
     display: flex;
@@ -398,7 +443,7 @@ body {
 }
 
 
-/* Círculos */
+/*Círculos que van en medio del texto*/
 
 .agendar-numero {
     width: 55px;
@@ -420,7 +465,7 @@ body {
 }
 
 
-/* Líneas entre los círculos */
+/*Líneas entre los círculos*/
 
 .agendar-paso:not(:last-child)::after {
     content: "";
@@ -437,7 +482,7 @@ body {
 }
 
 
-/* Textos de cada paso */
+/*Textos de cada numeral*/
 
 .agendar-paso h3 {
     color: #ffffff;
@@ -459,9 +504,7 @@ body {
 }
 
 
-/* ==================================================
-   6. MODAL, FORMULARIOS Y BOTONES
-================================================== */
+/*6. MODAL, FORMULARIOS Y BOTONES*/
 
 .text-rose-dark {
     color: var(--rose-main) !important;
@@ -472,7 +515,7 @@ body {
 }
 
 
-/* Botón principal */
+/*Botón principal*/
 
 .btn-rose {
     background-color: var(--rose-main) !important;
@@ -489,10 +532,10 @@ body {
 }
 
 
-/* Botón grande */
+/*Botón grande*/
 
 .btn-rose-lg {
-    background-color: var(--rose-main) !important; /* */
+    background-color: var(--rose-main) !important; 
 
     color: #ffffff !important;
 
@@ -513,7 +556,7 @@ body {
 }
 
 
-/* Botón con borde */
+/*Botón con borde*/
 
 .btn-outline-rose {
     color: var(--rose-main) !important;
@@ -528,7 +571,7 @@ body {
 }
 
 
-/* Inputs */
+/*Inputs*/
 
 .form-control:focus,
 .form-select:focus {
@@ -537,39 +580,427 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(232, 160, 191, 0.3) !important;
 }
 
+/*7. RESPONSIVE*/
 
-/* ==================================================
-   7. RESPONSIVE
-================================================== */
 
-@media (max-width: 992px) {
+/* TABLET Y MENÚ COLAPSABLE */
+
+@media (max-width: 991.98px) {
+
+    /* NAVBAR */
+
+    #navbar-principal .container {
+        position: relative;
+        min-height: 72px;
+
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .navbar-logo {
+        position: absolute;
+
+        left: 50%;
+        top: 10px;
+
+        transform: translateX(-50%);
+    }
+
+    .navbar-logo img {
+        width: 145px;
+    }
+
+    .navbar-toggler {
+        margin-left: auto;
+
+        border-color: rgba(255, 255, 255, 0.7);
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+    }
+
+    .navbar-toggler-icon {
+        filter: brightness(0) invert(1);
+    }
+
+    #navbarContenido {
+        width: 100%;
+
+        margin-top: 64px;
+        padding: 16px;
+
+        background-color: rgba(0, 0, 0, 0.95);
+
+        border-radius: 0 0 18px 18px;
+    }
+
+    #navbarContenido .navbar-nav {
+        align-items: center;
+        text-align: center;
+    }
+
+    #navbar-principal .nav-link,
+    #navbar-principal #usuario-sesion,
+    #navbar-principal .btn-outline-rose {
+        font-size: 1.05rem !important;
+    }
+
+    .navbar-sesion {
+        width: 100%;
+
+        flex-direction: column;
+        align-items: stretch !important;
+
+        margin-top: 12px;
+    }
+
+    #usuario-sesion {
+        text-align: center;
+    }
+
+    #btn-login-modal,
+    #btn-logout {
+        width: 100%;
+    }
+
+
+    /* PORTADA */
 
     .hero-principal {
         min-height: 520px;
+
         padding: 35px 18px;
     }
 
     .hero-texto {
         font-size: 1.15rem;
     }
+
+
+    /* SERVICIOS */
+
+    .bloque-servicios {
+        grid-template-columns: 1fr;
+
+        gap: 45px;
+    }
+
+    .grid-unas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tarjeta-servicio {
+        height: 500px;
+    }
+
+
+    /* TABLAS */
+
+    .table-responsive .table {
+        min-width: 900px;
+    }
+
+
+    /* PANEL ADMIN */
+
+    #app-content > .p-4:first-child {
+        margin-top: 85px;
+
+        align-items: flex-start !important;
+    }
 }
 
 
-@media (max-width: 556px) {
+/* CELULAR */
+
+@media (max-width: 576px) {
+
+    /* Evita desplazamiento horizontal */
+
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
+
+    /* NAVBAR */
+
+    #navbar-principal .container {
+        min-height: 65px;
+    }
+
+    .navbar-logo {
+        top: 9px;
+    }
+
+    .navbar-logo img {
+        width: 125px;
+    }
+
+    #navbarContenido {
+        margin-top: 58px;
+
+        padding: 14px;
+    }
+
+    #navbar-principal .nav-link,
+    #navbar-principal #usuario-sesion,
+    #navbar-principal .btn-outline-rose {
+        font-size: 1rem !important;
+    }
+
+    #navbar-principal .nav-link {
+        padding: 7px 8px;
+    }
+
+    #btn-login-modal,
+    #btn-logout {
+        font-size: 1rem !important;
+
+        padding: 8px 18px;
+    }
+
+
+    /* PORTADA */
 
     .hero-principal {
-        min-height: 430px;
-        border-radius: 20px;
+        width: 100vw;
+
+        height: 430px;
+        min-height: 0;
+
+        margin-top: -1.5rem;
+        margin-left: calc(50% - 50vw);
+
         padding: 25px 15px;
+
+        border-radius: 0;
+    }
+
+    .hero-logo {
+        width: 135px;
     }
 
     .hero-titulo {
-        font-size: 1.7rem;
+        font-size: 2rem;
+
         margin-bottom: 14px;
     }
 
     .hero-texto {
+        max-width: 340px;
+
         font-size: 1rem;
         line-height: 1.45;
     }
+
+
+    /* NUESTROS SERVICIOS */
+
+    .seccion-servicios {
+        padding: 55px 0;
+    }
+
+    .servicios-etiqueta {
+        gap: 10px;
+    }
+
+    .servicios-etiqueta span {
+        width: 40px;
+    }
+
+    .servicios-etiqueta p {
+        font-size: 0.75rem;
+
+        letter-spacing: 2px;
+
+        text-align: center;
+    }
+
+    .titulo-servicios {
+        font-size: 2.5rem;
+
+        text-align: center;
+    }
+
+    .subtitulo-servicios {
+        max-width: 330px;
+
+        font-size: 1rem;
+        line-height: 1.5;
+
+        margin-bottom: 45px;
+    }
+
+
+    /* PESTAÑAS Y CEJAS */
+
+    .bloque-servicios {
+        grid-template-columns: 1fr;
+
+        gap: 45px;
+
+        margin-bottom: 45px;
+    }
+
+
+    /* UNA TARJETA POR FILA */
+
+    .grid-servicios,
+    .grid-unas {
+        grid-template-columns: 1fr;
+
+        gap: 20px;
+    }
+
+
+    /* ENCABEZADOS DE CATEGORÍA */
+
+    .encabezado-categoria {
+        gap: 10px;
+
+        flex-wrap: wrap;
+    }
+
+    .encabezado-categoria h3 {
+        font-size: 1.7rem;
+    }
+
+    .encabezado-categoria p {
+        font-size: 0.7rem;
+
+        letter-spacing: 1px;
+
+        white-space: normal;
+    }
+
+    .linea-categoria {
+        min-width: 30px;
+    }
+
+
+    /* TARJETAS */
+
+    .tarjeta-servicio {
+        width: 100%;
+
+        height: 430px;
+    }
+
+    .info-servicio {
+        padding: 18px;
+    }
+
+
+    /* CÓMO AGENDAR */
+
+    .seccion-agendar {
+        padding: 55px 0;
+    }
+
+    .agendar-encabezado {
+        gap: 10px;
+
+        margin-bottom: 25px;
+    }
+
+    .agendar-linea {
+        width: 35px;
+
+        flex-shrink: 0;
+    }
+
+    .agendar-titulo {
+        font-size: 2rem;
+
+        line-height: 1.2;
+    }
+
+    .agendar-box {
+        width: 100%;
+
+        padding: 35px 20px;
+
+        border-radius: 22px;
+    }
+
+    .agendar-subtitulo {
+        font-size: 1rem;
+
+        margin-bottom: 35px;
+    }
+
+    .agendar-pasos {
+        flex-direction: column;
+        align-items: center;
+
+        gap: 40px;
+    }
+
+    .agendar-paso {
+        width: 100%;
+    }
+
+    .agendar-paso:not(:last-child)::after {
+        display: none;
+    }
+
+    .agendar-numero {
+        width: 55px;
+        height: 55px;
+
+        margin-bottom: 15px;
+    }
+
+    .agendar-paso h3 {
+        font-size: 1.5rem;
+    }
+
+    .agendar-paso p {
+        max-width: 280px;
+
+        font-size: 1rem;
+    }
+
+
+    /* FORMULARIO DE RESERVA */
+
+    #form-reserva .col-12.d-flex {
+        flex-direction: column;
+
+        align-items: stretch !important;
+
+        gap: 12px;
+    }
+
+    #form-reserva .col-12.d-flex .btn {
+        width: 100%;
+    }
+
+    #mapa-reserva {
+        height: 280px !important;
+    }
+
+
+    /* TABLAS */
+
+    .table-responsive .table {
+        min-width: 850px;
+    }
+
+
+    /* PANEL ADMINISTRATIVO */
+
+    #app-content > .p-4:first-child {
+        margin-top: 80px;
+
+        padding: 20px !important;
+    }
+
+    #app-content > .p-4:first-child .btn {
+        width: 100%;
+    }
 }
+
+
