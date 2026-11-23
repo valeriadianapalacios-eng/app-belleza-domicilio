@@ -39,12 +39,11 @@ HTML5 · CSS3 · JavaScript · React 18 · Bootstrap 5 · Chart.js · SweetAlert
 - La clave de administración se valida contra un hash SHA-256 y no está escrita en el código.
 
 ## Mockups (Figma)
-- Los mockups desarrollados en Figma durante la Etapa 1 funcionaron como referencia -- visual para el diseño e implementación de Lashes Rose´s Studio.
-- Estos diseños representan el prototipo e idea inicial de la interfaz y permiten
-- comparar la planificación visual realizada al inicio del proyecto con la -- aplicación web desarrollada
-- https://www.figma.com/design/iZ9FJuNf2iMVBhFF4Q7HlO/UDB-Aplicaciones?node-id=0-1&t=Y8357SrGrf8PxZcB-1 -- Enlace a Figma
+Los mockups desarrollados en Figma durante la Etapa 1 sirvieron como referencia visual para el diseño e implementación de Lashes Rose's Studio. Representan el prototipo e idea inicial de la interfaz y permiten comparar la planificación visual con la aplicación web desarrollada.
 
+📄 [Ver mockups en PDF](mockups/FIGMA_LASHES_ROSE_STUDIO.pdf)
 
+🔗 [Ver diseño en Figma](https://www.figma.com/design/iZ9FJuNf2iMVBhFF4Q7HlO/UDB-Aplicaciones?node-id=0-1&p=f&t=5BkICumKtPXuEH1L-0)
 
 ## Cómo ejecutarlo
 1. Clonar el repositorio.
